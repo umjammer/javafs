@@ -119,6 +119,10 @@ public class StructFlock {
         return this;
     }
 
+    public final String path() {
+        return path;
+    }
+
     @Override
     public final java.lang.String toString() {
         if (path != null)

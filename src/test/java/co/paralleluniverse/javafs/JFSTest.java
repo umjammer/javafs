@@ -5,9 +5,6 @@
  */
 package co.paralleluniverse.javafs;
 
-import co.paralleluniverse.javafs.JavaFS;
-import com.google.common.jimfs.Jimfs;
-import static com.google.common.truth.Truth.assert_;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -16,8 +13,13 @@ import java.io.FileOutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import com.google.common.jimfs.Jimfs;
+
+import static com.google.common.truth.Truth.assert_;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *

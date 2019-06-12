@@ -184,4 +184,8 @@ public class StructStatvfs {
             return path + "\n" + JNRUtil.toString(layout, p);
         return JNRUtil.toString(layout, p);
     }
+    
+    public String getPath() {
+        return path;
+    }
 }

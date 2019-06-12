@@ -272,6 +272,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int open(String path, StructFuseFileInfo info) {
+System.out.println("FuseFileSystemProvider::open: " + path);
         try {
             final SeekableByteChannel channel = fsp.newByteChannel(path(path), fileInfoToOpenOptions(info));
             final long fh = fileHandle.incrementAndGet();
@@ -321,6 +322,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int write(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
+System.out.println("FuseFileSystemProvider::write: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -354,7 +356,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int statfs(String path, StructStatvfs statvfs) {
-
+//System.out.println("FuseFileSystemProvider::statvfs: statvfs.getPath(): " + statvfs.getPath());
         try {
             boolean hasStore = false; // only one store allowed
             for (FileStore store : fs.getFileStores()) {
@@ -381,6 +383,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int flush(String path, StructFuseFileInfo info) {
+System.out.println("FuseFileSystemProvider::flush: " + path);
         return 0;
     }
 
@@ -502,6 +505,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int create(String path, long mode, StructFuseFileInfo info) {
+System.out.println("FuseFileSystemProvider::create: " + path);
         try {
             final Set<OpenOption> options = fileInfoToOpenOptions(info);
             options.add(StandardOpenOption.CREATE);
@@ -537,7 +541,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
     @Override
     protected int lock(String path, StructFuseFileInfo info, int command, StructFlock flock) {
         try {
-            throw new UnsupportedOperationException();
+//            throw new UnsupportedOperationException();
 //            if (command == StructFlock.CMD_GETLK)
 //                throw new UnsupportedOperationException();
 //
@@ -552,7 +556,10 @@ class FuseFileSystemProvider extends FuseFilesystem {
 //            } else if (channel instanceof AsynchronousFileChannel) {
 //                AsynchronousFileChannel ch = (AsynchronousFileChannel) channel;
 //            }
-//            return 0;
+System.out.println("FuseFileSystemProvider::lock: " + path + ", " + flock.path());
+            // TODO super ad-hoc
+            fsp.newAsynchronousFileChannel(path(path), fileInfoToOpenOptions(info), null);
+            return 0;
         } catch (Exception e) {
             return -errno(e);
         }
@@ -592,6 +599,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int write_buf(String path, StructFuseBufvec buf, long off, StructFuseFileInfo fi) {
+System.out.println("FuseFileSystemProvider::write_buf: " + path);
         throw new UnsupportedOperationException("Not supported yet."); // TODO: implement
     }
 
@@ -738,6 +746,8 @@ class FuseFileSystemProvider extends FuseFilesystem {
     }
 
     private int errno(Throwable e) {
+if (!(e instanceof java.nio.file.NoSuchFileException) && !(e instanceof java.nio.file.AccessDeniedException))
+e.printStackTrace();
         final Errno en = errno0(e);
         if (en == null)
             return 0;
