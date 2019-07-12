@@ -746,13 +746,15 @@ System.out.println("FuseFileSystemProvider::write_buf: " + path);
     }
 
     private int errno(Throwable e) {
-if (!(e instanceof java.nio.file.NoSuchFileException) && !(e instanceof java.nio.file.AccessDeniedException))
-e.printStackTrace();
+        if (debug) {
+            if (e instanceof java.nio.file.NoSuchFileException || e instanceof java.nio.file.AccessDeniedException)
+                getLogger().log(Level.INFO, e.toString());
+            else
+                getLogger().log(Level.WARNING, e.getClass().getName(), e);
+        }
         final Errno en = errno0(e);
         if (en == null)
             return 0;
-        if (debug)
-            getLogger().log(Level.WARNING, "Exception", e);
         return en.intValue();
     }
 

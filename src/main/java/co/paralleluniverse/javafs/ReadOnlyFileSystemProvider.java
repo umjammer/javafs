@@ -61,7 +61,7 @@ class ReadOnlyFileSystemProvider extends FileSystemProviderAdapter {
     public void checkAccess(Path path, AccessMode... modes) throws IOException {
         for (AccessMode mode : modes) {
             if (mode == AccessMode.WRITE)
-                throw new AccessDeniedException(path.toString());
+                throw new AccessDeniedException("readonly mode: " + path.toString());
         }
         super.checkAccess(path, modes);
     }
