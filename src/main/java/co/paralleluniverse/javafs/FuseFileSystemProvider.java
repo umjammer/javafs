@@ -272,7 +272,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int open(String path, StructFuseFileInfo info) {
-System.out.println("FuseFileSystemProvider::open: " + path);
+if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::open: " + path);
         try {
             final SeekableByteChannel channel = fsp.newByteChannel(path(path), fileInfoToOpenOptions(info));
             final long fh = fileHandle.incrementAndGet();
@@ -322,7 +322,7 @@ System.out.println("FuseFileSystemProvider::open: " + path);
 
     @Override
     protected int write(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-System.out.println("FuseFileSystemProvider::write: " + path);
+if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -356,7 +356,7 @@ System.out.println("FuseFileSystemProvider::write: " + path);
 
     @Override
     protected int statfs(String path, StructStatvfs statvfs) {
-//System.out.println("FuseFileSystemProvider::statvfs: statvfs.getPath(): " + statvfs.getPath());
+//if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::statvfs: statvfs.getPath(): " + statvfs.getPath());
         try {
             boolean hasStore = false; // only one store allowed
             for (FileStore store : fs.getFileStores()) {
@@ -383,7 +383,7 @@ System.out.println("FuseFileSystemProvider::write: " + path);
 
     @Override
     protected int flush(String path, StructFuseFileInfo info) {
-System.out.println("FuseFileSystemProvider::flush: " + path);
+if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::flush: " + path);
         return 0;
     }
 
@@ -505,7 +505,7 @@ System.out.println("FuseFileSystemProvider::flush: " + path);
 
     @Override
     protected int create(String path, long mode, StructFuseFileInfo info) {
-System.out.println("FuseFileSystemProvider::create: " + path);
+if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::create: " + path);
         try {
             final Set<OpenOption> options = fileInfoToOpenOptions(info);
             options.add(StandardOpenOption.CREATE);
@@ -599,7 +599,7 @@ System.out.println("FuseFileSystemProvider::lock: " + path + ", " + flock.path()
 
     @Override
     protected int write_buf(String path, StructFuseBufvec buf, long off, StructFuseFileInfo fi) {
-System.out.println("FuseFileSystemProvider::write_buf: " + path);
+if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write_buf: " + path);
         throw new UnsupportedOperationException("Not supported yet."); // TODO: implement
     }
 

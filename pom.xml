@@ -5,7 +5,7 @@
 
   <groupId>co.paralleluniverse</groupId>
   <artifactId>javafs</artifactId>
-  <version>0.1.1v</version>
+  <version>0.1.2v</version>
 
   <build>
     <plugins>
