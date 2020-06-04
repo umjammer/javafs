@@ -1,5 +1,9 @@
-# JavaFS [![Version](http://img.shields.io/badge/version-0.1.0-blue.svg?style=flat)](https://github.com/puniverse/javafs/releases) [![Release](https://jitpack.io/v/umjammer/javafs.svg)](https://jitpack.io/#umjammer/javafs)
-## Java filesystems as FUSE
+[![Release](https://jitpack.io/v/umjammer/javafs.svg)](https://jitpack.io/#umjammer/javafs)  [![Java CI with Maven](https://github.com/umjammer/javafs/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/javafs/actions) [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
+
+
+# JavaFS
+
+Java filesystems as FUSE
 
 ## Requirements
 
@@ -11,14 +15,13 @@ Your OS must support FUSE or have it installed.
 
 The API consists of a single class with two methods: 
 
-JavaFS.mount, which mounts a Java `FileSystem` as FUSE filesystem, and
-
-JavaFS.unmount, which unmounts a FUSE filesystem
+ * `JavaFS.mount`, which mounts a Java `FileSystem` as FUSE filesystem, and
+ * `JavaFS.unmount`, which unmounts a FUSE filesystem
 
 ## Test
 
 ```
-./run.sh [-r] <mountpoint> [<zipfile>]
+$ java -cp ... co.paralleluniverse.javafs.Main [-r] <mountpoint> [<zipfile>]
 ```
 
 #### Compatibility

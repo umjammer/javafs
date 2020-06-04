@@ -133,13 +133,11 @@ public abstract class FuseFilesystem {
     }
 
     /**
-     * Populates a {@link StatWrapper} with somewhat-sane, usually-better-than-zero values. Subclasses may override this to
+     * Populates a {@link StructStat} with somewhat-sane, usually-better-than-zero values. Subclasses may override this to
      * customize the default parameters applied to the stat structure, or to prevent such behavior in the first place (by
      * overriding this method with an empty one).
      *
      * @param stat The StructStat object to write to.
-     * @param uid  The UID under which the JVM is running.
-     * @param gid  The GID under which the JVM is running.
      */
     protected StructStat defaultStat(StructStat stat) {
         // Set some sensible defaults
@@ -571,9 +569,8 @@ public abstract class FuseFilesystem {
      * <p>
      * Introduced in version 2.5
      *
-     * @param mask see {@link AccessConstants}
+     * @param access see {@link AccessConstants}
      * @return -ENOENT if the path doesn't exist, -EACCESS if the requested permission isn't available, or 0 for success
-     * @return
      */
     protected abstract int access(String path, int access);
 
@@ -590,7 +587,7 @@ public abstract class FuseFilesystem {
      * @param path
      * @param mode
      * @param info
-     * @return
+     * @return -ENOENT
      */
     protected abstract int create(String path, long mode, StructFuseFileInfo info);
 
@@ -606,7 +603,7 @@ public abstract class FuseFilesystem {
      * @param path
      * @param offset
      * @param info
-     * @return
+     * @return -ENOENT
      */
     protected abstract int ftruncate(String path, long offset, StructFuseFileInfo info);
 
@@ -623,7 +620,7 @@ public abstract class FuseFilesystem {
      * @param path
      * @param stat
      * @param info
-     * @return
+     * @return -ENOENT
      */
     protected abstract int fgetattr(String path, StructStat stat, StructFuseFileInfo info);
 
@@ -655,7 +652,7 @@ public abstract class FuseFilesystem {
      * @param info
      * @param command
      * @param flock
-     * @return
+     * @return -ENOENT
      */
     protected abstract int lock(String path, StructFuseFileInfo info, int command, StructFlock flock);
 
@@ -670,7 +667,7 @@ public abstract class FuseFilesystem {
      *
      * @param path
      * @param timeBuffer
-     * @return
+     * @return -ENOENT
      */
     protected abstract int utimens(String path, StructTimeBuffer timeBuffer);
 
@@ -683,7 +680,7 @@ public abstract class FuseFilesystem {
      *
      * @param path
      * @param info
-     * @return
+     * @return -ENOENT
      */
     protected abstract int bmap(String path, StructFuseFileInfo info);
 
@@ -695,8 +692,7 @@ public abstract class FuseFilesystem {
      * For _IOC_NONE, data will be NULL, for _IOC_WRITE data is out area, for _IOC_READ in area and if both are set in/out area.
      * In all non-NULL cases, the area is of _IOC_SIZE(cmd) bytes.
      *
-     * @param flags See {
-     * @IoctlFlags}
+     * @param flags See {@link IoctlFlags}
      */
     protected abstract int ioctl(String path, int cmd, Pointer arg, StructFuseFileInfo fi, long flags, Pointer data);
 

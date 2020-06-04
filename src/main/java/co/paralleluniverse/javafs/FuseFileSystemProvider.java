@@ -9,7 +9,6 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.FileLock;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.AccessMode;
 import java.nio.file.DirectoryNotEmptyException;
@@ -20,7 +19,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.attribute.FileTime;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -29,7 +27,6 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
@@ -47,14 +44,15 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
-import jnr.constants.platform.Errno;
-import jnr.ffi.Pointer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import co.paralleluniverse.fuse.AccessConstants;
 import co.paralleluniverse.fuse.DirectoryFiller;
-import co.paralleluniverse.fuse.StructFuseFileInfo;
 import co.paralleluniverse.fuse.FuseFilesystem;
 import co.paralleluniverse.fuse.StructFlock;
 import co.paralleluniverse.fuse.StructFuseBufvec;
+import co.paralleluniverse.fuse.StructFuseFileInfo;
 import co.paralleluniverse.fuse.StructFusePollHandle;
 import co.paralleluniverse.fuse.StructStat;
 import co.paralleluniverse.fuse.StructStatvfs;
@@ -62,8 +60,8 @@ import co.paralleluniverse.fuse.StructTimeBuffer;
 import co.paralleluniverse.fuse.TypeMode;
 import co.paralleluniverse.fuse.XattrFiller;
 import co.paralleluniverse.fuse.XattrListFiller;
-import java.util.Arrays;
-import java.util.logging.Level;
+import jnr.constants.platform.Errno;
+import jnr.ffi.Pointer;
 
 class FuseFileSystemProvider extends FuseFilesystem {
     private final FileSystemProvider fsp;
@@ -72,6 +70,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
     private final AtomicLong fileHandle = new AtomicLong(0);
     private final boolean debug;
     private static final long BLOCK_SIZE = 4096;
+    private static Logger logger = Logger.getLogger(FuseFileSystemProvider.class.getName());
 
     public FuseFileSystemProvider(FileSystemProvider fsp, URI uri, boolean debug) {
         this.fsp = fsp;
@@ -109,6 +108,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int getattr(String path, StructStat stat) {
+logger.log(Level.FINE, "mkdir: " + path);
         try {
             Path p = path(path);
             BasicFileAttributes attributes = fsp.readAttributes(p, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
@@ -172,8 +172,13 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int mkdir(String path, long mode) {
+logger.log(Level.INFO, "mkdir: " + path);
         try {
-            fsp.createDirectory(path(path), PosixFilePermissions.asFileAttribute(modeToPermissions(mode)));
+            if (fsp.getFileStore(path(path)).supportsFileAttributeView(PosixFileAttributeView.class)) {
+                fsp.createDirectory(path(path), PosixFilePermissions.asFileAttribute(modeToPermissions(mode)));
+            } else {
+                fsp.createDirectory(path(path));
+            }
             return 0;
         } catch (Exception e) {
             return -errno(e);
@@ -182,6 +187,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int unlink(String path) {
+logger.log(Level.INFO, "unlink: " + path);
         try {
             Path p = path(path);
             if (Files.isDirectory(p))
@@ -195,6 +201,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int rmdir(String path) {
+logger.log(Level.INFO, "rmdir: " + path);
         try {
             Path p = path(path);
             if (!Files.isDirectory(p))
@@ -218,6 +225,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int rename(String path, String newName) {
+logger.log(Level.INFO, "rename: " + path);
         try {
             fsp.move(path(path), path(newName));
             return 0;
@@ -228,6 +236,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int link(String path, String target) {
+logger.log(Level.INFO, "link: " + path);
         try {
             fsp.createLink(path(target), path(path));
             return 0;
@@ -238,10 +247,15 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int chmod(String path, long mode) {
+logger.log(Level.INFO, "chmod: " + path);
         try {
-            final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
-            attrs.setPermissions(modeToPermissions(mode));
-            return 0;
+            if (fsp.getFileStore(path(path)).supportsFileAttributeView(PosixFileAttributeView.class)) {
+                final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
+                attrs.setPermissions(modeToPermissions(mode));
+                return 0;
+            } else {
+                return -Errno.EAFNOSUPPORT.ordinal();
+            }
         } catch (Exception e) {
             return -errno(e);
         }
@@ -249,6 +263,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int chown(String path, long uid, long gid) {
+logger.log(Level.INFO, "chown: " + path);
         try {
             final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
             attrs.setOwner(fs.getUserPrincipalLookupService().lookupPrincipalByName(Long.toString(uid)));
@@ -261,6 +276,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int truncate(String path, long offset) {
+logger.log(Level.INFO, "truncate: " + path);
         try {
             final SeekableByteChannel ch = fsp.newByteChannel(path(path), EnumSet.of(StandardOpenOption.WRITE));
             ch.truncate(offset);
@@ -272,7 +288,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int open(String path, StructFuseFileInfo info) {
-if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::open: " + path);
+logger.log(Level.INFO, "open: " + path);
         try {
             final SeekableByteChannel channel = fsp.newByteChannel(path(path), fileInfoToOpenOptions(info));
             final long fh = fileHandle.incrementAndGet();
@@ -286,6 +302,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::open: " + path);
 
     @Override
     protected int read(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
+logger.log(Level.INFO, "read: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -310,7 +327,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::open: " + path);
                 }else{
                     return 0; // we did not read any bytes
                 }
-               
+
             } else if (channel instanceof AsynchronousFileChannel) {
                 final AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
                 int n = ch.read(buffer, offset).get();
@@ -325,7 +342,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::open: " + path);
 
     @Override
     protected int write(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write: " + path);
+logger.log(Level.INFO, "write: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -353,13 +370,14 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write: " + path)
             } else
                 throw new UnsupportedOperationException();
         } catch (Exception e) {
+e.printStackTrace();
             return -errno(e);
         }
     }
 
     @Override
     protected int statfs(String path, StructStatvfs statvfs) {
-//if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::statvfs: statvfs.getPath(): " + statvfs.getPath());
+logger.log(Level.FINE, "statvfs: " + path);
         try {
             boolean hasStore = false; // only one store allowed
             for (FileStore store : fs.getFileStores()) {
@@ -386,12 +404,13 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write: " + path)
 
     @Override
     protected int flush(String path, StructFuseFileInfo info) {
-if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::flush: " + path);
+logger.log(Level.INFO, "flush: " + path);
         return 0;
     }
 
     @Override
     public int release(String path, StructFuseFileInfo info) {
+logger.log(Level.INFO, "release: " + path);
         try {
             final Channel ch = toChannel(info);
             ch.close();
@@ -404,6 +423,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::flush: " + path)
 
     @Override
     protected int fsync(String path, int datasync, StructFuseFileInfo info) {
+logger.log(Level.INFO, "fsync: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof FileChannel) {
@@ -461,6 +481,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::flush: " + path)
 
     @Override
     protected int readdir(String path, StructFuseFileInfo info, DirectoryFiller filler) {
+logger.log(Level.INFO, "readdir: " + path);
         final DirectoryStream<Path> ds = (DirectoryStream<Path>) openFiles.get(info.fh());
         filler.add(toStringIterable(ds));
         return 0;
@@ -497,6 +518,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::flush: " + path)
 
     @Override
     protected int access(String path, int access) {
+logger.log(Level.FINE, "access: " + path);
         try {
             final Path p = path(path);
             fsp.checkAccess(p, toAccessMode(access, Files.isDirectory(p)));
@@ -508,7 +530,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::flush: " + path)
 
     @Override
     protected int create(String path, long mode, StructFuseFileInfo info) {
-if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::create: " + path);
+logger.log(Level.INFO, "create: " + path);
         try {
             final Set<OpenOption> options = fileInfoToOpenOptions(info);
             options.add(StandardOpenOption.CREATE);
@@ -524,6 +546,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::create: " + path
 
     @Override
     protected int ftruncate(String path, long offset, StructFuseFileInfo info) {
+logger.log(Level.INFO, "ftruncate: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel)
@@ -538,13 +561,15 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::create: " + path
 
     @Override
     protected int fgetattr(String path, StructStat stat, StructFuseFileInfo info) {
+logger.log(Level.FINE, "fgetattr: " + path);
         return getattr(path, stat);
     }
 
     @Override
     protected int lock(String path, StructFuseFileInfo info, int command, StructFlock flock) {
+logger.log(Level.INFO, "lock: " + path);
         try {
-//            throw new UnsupportedOperationException();
+            return -Errno.ENOSYS.ordinal();
 //            if (command == StructFlock.CMD_GETLK)
 //                throw new UnsupportedOperationException();
 //
@@ -559,10 +584,6 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::create: " + path
 //            } else if (channel instanceof AsynchronousFileChannel) {
 //                AsynchronousFileChannel ch = (AsynchronousFileChannel) channel;
 //            }
-System.out.println("FuseFileSystemProvider::lock: " + path + ", " + flock.path());
-            // TODO super ad-hoc
-            fsp.newAsynchronousFileChannel(path(path), fileInfoToOpenOptions(info), null);
-            return 0;
         } catch (Exception e) {
             return -errno(e);
         }
@@ -602,7 +623,6 @@ System.out.println("FuseFileSystemProvider::lock: " + path + ", " + flock.path()
 
     @Override
     protected int write_buf(String path, StructFuseBufvec buf, long off, StructFuseFileInfo fi) {
-if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write_buf: " + path);
         throw new UnsupportedOperationException("Not supported yet."); // TODO: implement
     }
 
@@ -756,8 +776,10 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write_buf: " + p
                 getLogger().log(Level.WARNING, e.getClass().getName(), e);
         }
         final Errno en = errno0(e);
-        if (en == null)
+        if (en == null) {
+logger.log(Level.WARNING, "error is null???");
             return 0;
+        }
         return en.intValue();
     }
 
@@ -799,7 +821,7 @@ if (debug) getLogger().log(Level.INFO, "FuseFileSystemProvider::write_buf: " + p
 
     private static void fillBufferWithString(String str, ByteBuffer buffer, long size) {
         final byte[] bytes = str.getBytes();
-        final int s = (int) Math.min((long) Integer.MAX_VALUE, size - 1);
+        final int s = (int) Math.min(Integer.MAX_VALUE, size - 1);
         buffer.put(bytes, 0, Math.min(bytes.length, s));
         buffer.put((byte) 0);
         buffer.flip();

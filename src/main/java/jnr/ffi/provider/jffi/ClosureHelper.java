@@ -23,9 +23,9 @@
  */
 package jnr.ffi.provider.jffi;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
-import java.util.Collection;
+import java.util.Collections;
+
 import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
 import jnr.ffi.mapper.CompositeTypeMapper;
@@ -33,7 +33,6 @@ import jnr.ffi.mapper.DefaultSignatureType;
 import jnr.ffi.mapper.FromNativeContext;
 import jnr.ffi.mapper.FromNativeConverter;
 import jnr.ffi.provider.ClosureManager;
-import java.util.Collections;
 
 public class ClosureHelper {
     public static ClosureHelper getInstance() {
@@ -53,7 +52,7 @@ public class ClosureHelper {
 
             final AsmClassLoader cl = (AsmClassLoader) accessible(NativeClosureManager.class.getDeclaredField("classLoader")).get(closureManager);
             final CompositeTypeMapper ctm = (CompositeTypeMapper) accessible(NativeClosureManager.class.getDeclaredField("typeMapper")).get(closureManager);
-            this.ctx = new SimpleNativeContext(Runtime.getSystemRuntime(), (Collection<Annotation>) Collections.EMPTY_LIST);
+            this.ctx = new SimpleNativeContext(Runtime.getSystemRuntime(), Collections.EMPTY_LIST);
             this.cache = new ClassValue<FromNativeConverter<?, Pointer>>() {
                 @Override
                 protected FromNativeConverter<?, Pointer> computeValue(Class<?> closureClass) {

@@ -10,15 +10,15 @@ public class StructStatvfs {
     public static final int ST_RDONLY = 1;       // Mount read-only.
     public static final int ST_NOSUID = 2;       // Ignore suid and sgid bits.
     public static final int ST_NODEV = 4;        // Disallow access to device special files.
-    public static final int ST_NOEXEC = 8;	 // Disallow program execution.
+    public static final int ST_NOEXEC = 8;   // Disallow program execution.
     public static final int ST_SYNCHRONOUS = 16; // Writes are synced at once.
-    public static final int ST_MANDLOCK = 64;	 // Allow mandatory locks on an FS.
+    public static final int ST_MANDLOCK = 64;    // Allow mandatory locks on an FS.
     public static final int ST_WRITE = 128;      // Write on file/directory/symlink.
-    public static final int ST_APPEND = 256;	 // Append-only file.
-    public static final int ST_IMMUTABLE = 512;	 // Immutable file.
-    public static final int ST_NOATIME = 1024;	 // Do not update access times.
+    public static final int ST_APPEND = 256;     // Append-only file.
+    public static final int ST_IMMUTABLE = 512;  // Immutable file.
+    public static final int ST_NOATIME = 1024;   // Do not update access times.
     public static final int ST_NODIRATIME = 2048;// Do not update directory access times.
-    public static final int ST_RELATIME = 4096;	 // Update atime relative to mtime/ctime.
+    public static final int ST_RELATIME = 4096;  // Update atime relative to mtime/ctime.
 
     private static final class Layout extends StructLayout {
         public final SignedLong f_bsize;  // file system block size
@@ -183,9 +183,5 @@ public class StructStatvfs {
         if (path != null)
             return path + "\n" + JNRUtil.toString(layout, p);
         return JNRUtil.toString(layout, p);
-    }
-    
-    public String getPath() {
-        return path;
     }
 }
