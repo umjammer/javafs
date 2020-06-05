@@ -533,7 +533,8 @@ logger.log(Level.FINE, "access: " + path);
 logger.log(Level.INFO, "create: " + path);
         try {
             final Set<OpenOption> options = fileInfoToOpenOptions(info);
-            options.add(StandardOpenOption.CREATE);
+            options.add(StandardOpenOption.WRITE);
+            options.add(StandardOpenOption.CREATE_NEW);
             final SeekableByteChannel channel = fsp.newByteChannel(path(path), options);
             final long fh = fileHandle.incrementAndGet();
             openFiles.put(fh, channel);
