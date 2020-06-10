@@ -65,6 +65,7 @@ public class ClosureHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T fromNative(Pointer nativeValue, Class<T> closureClass) {
         return (T) cache.get(closureClass).fromNative(nativeValue, ctx);
     }
