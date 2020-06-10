@@ -108,7 +108,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int getattr(String path, StructStat stat) {
-logger.log(Level.FINE, "mkdir: " + path);
+logger.log(Level.FINE, "getattr: " + path);
         try {
             Path p = path(path);
             BasicFileAttributes attributes = fsp.readAttributes(p, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
@@ -134,10 +134,19 @@ logger.log(Level.FINE, "mkdir: " + path);
                 try {
                     pas = fsp.readAttributes(p, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
                 } catch (UnsupportedOperationException e) {
+logger.log(Level.INFO, e.getMessage());
                 }
             }
-            if (pas != null)
+            if (pas != null) {
                 mode |= permissionsToMode(pas.permissions());
+            } else {
+                // not posix
+                if (attributes.isDirectory()) {
+                    mode |= 0755;
+                } else {
+                    mode |= 0644;
+                }
+            }
             stat.mode(mode);
 
             try {
@@ -482,7 +491,7 @@ logger.log(Level.INFO, "fsync: " + path);
     @Override
     protected int readdir(String path, StructFuseFileInfo info, DirectoryFiller filler) {
 logger.log(Level.INFO, "readdir: " + path);
-        final DirectoryStream<Path> ds = (DirectoryStream<Path>) openFiles.get(info.fh());
+        final DirectoryStream<Path> ds = DirectoryStream.class.cast(openFiles.get(info.fh()));
         filler.add(toStringIterable(ds));
         return 0;
     }
@@ -490,7 +499,7 @@ logger.log(Level.INFO, "readdir: " + path);
     @Override
     protected int releasedir(String path, StructFuseFileInfo info) {
         try {
-            final DirectoryStream<Path> ds = (DirectoryStream<Path>) openFiles.get(info.fh());
+            final DirectoryStream<Path> ds = DirectoryStream.class.cast(openFiles.get(info.fh()));
             ds.close();
             return 0;
         } catch (Exception e) {
