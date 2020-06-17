@@ -9,11 +9,14 @@ import co.paralleluniverse.fuse.Fuse;
 
 /**
  * Mounts Java {@link FileSystem}s as a FUSE filesystems.
- * 
+ *
  * @author pron
  */
 public final class JavaFS {
-	
+
+    /** */
+    public static final String ENV_SINGLE_THREAD = "single_thread";
+
     /**
      * Mounts a filesystem.
      *
@@ -26,9 +29,18 @@ public final class JavaFS {
     public static void mount(FileSystem fs, Path mountPoint, boolean readonly, boolean log, Map<String, String> mountOptions) throws IOException {
         if (readonly)
             fs = new ReadOnlyFileSystem(fs);
-        Fuse.mount(new FuseFileSystemProvider(fs, log).log(log), mountPoint, false, log, mountOptions);
+        boolean singleThread = false;
+        if (mountOptions.containsKey(ENV_SINGLE_THREAD)) {
+            singleThread = true;
+            mountOptions.remove(ENV_SINGLE_THREAD);
+        }
+        if (singleThread) {
+            Fuse.mount(new SingleThreadFuseFileSystemProvider(fs, log).log(log), mountPoint, false, log, mountOptions);
+        } else {
+            Fuse.mount(new FuseFileSystemProvider(fs, log).log(log), mountPoint, false, log, mountOptions);
+        }
     }
-    
+
     /**
      * Mounts a filesystem.
      *
@@ -51,7 +63,7 @@ public final class JavaFS {
     public static void mount(FileSystem fs, Path mountPoint, Map<String, String> mountOptions) throws IOException {
         mount(fs, mountPoint, false, false, mountOptions);
     }
-    
+
     /**
      * Mounts a filesystem.
      *

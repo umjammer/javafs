@@ -311,7 +311,7 @@ logger.log(Level.INFO, "open: " + path);
 
     @Override
     protected int read(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-logger.log(Level.INFO, "read: " + path);
+logger.log(Level.INFO, "read: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -351,7 +351,7 @@ logger.log(Level.INFO, "read: " + path);
 
     @Override
     protected int write(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-logger.log(Level.INFO, "write: " + path);
+logger.log(Level.INFO, "write: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
