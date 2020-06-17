@@ -360,7 +360,22 @@ logger.log(Level.INFO, "write: " + path + ", " + offset + ", " + size + ", " + i
             if (channel instanceof SeekableByteChannel) {
                 final SeekableByteChannel ch = ((SeekableByteChannel) channel);
                 if (!info.append() && !info.nonseekable())
+try { // TODO ad-hoc
                     ch.position(offset);
+} catch (IOException e) {
+ if (e.getMessage().contains("@vavi")) {
+  long o = Long.parseLong(e.getMessage().substring(9, e.getMessage().length() - 1));
+  if (offset > o) {
+   logger.log(Level.SEVERE, "write: skip bad position: " + offset);
+   throw new IOException("cannot skip last bytes send", e);
+  } else {
+   logger.log(Level.WARNING, "write: correct bad position: " + offset + " -> " + o);
+   return Math.min((int) (o - offset), (int) size);
+  }
+ } else {
+  throw e;
+ }
+}
                 int n = ch.write(buffer);
                 if (n > 0) {
                     if (!info.noblock())
