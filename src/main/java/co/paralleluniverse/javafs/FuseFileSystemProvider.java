@@ -473,12 +473,7 @@ logger.log(Level.INFO, "fsync: " + path);
     @Override
     protected int opendir(String path, StructFuseFileInfo info) {
         try {
-            final DirectoryStream<Path> ds = fsp.newDirectoryStream(path(path), new DirectoryStream.Filter<Path>() {
-                @Override
-                public boolean accept(Path entry) throws IOException {
-                    return true;
-                }
-            });
+            final DirectoryStream<Path> ds = fsp.newDirectoryStream(path(path), p -> true);
             final long fh = fileHandle.incrementAndGet();
             openFiles.put(fh, ds);
             info.fh(fh);
@@ -766,7 +761,7 @@ logger.log(Level.INFO, "lock: " + path);
 
                     @Override
                     public String next() {
-                        return it.next().toString();
+                        return it.next().toString(); // TODO unicode normalize
                     }
 
                     @Override
