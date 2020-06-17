@@ -138,13 +138,13 @@ public final class Fuse {
             argv = new String[(debug ? 4 : 3) + options.length];
             System.arraycopy(options, 0, argv, (debug ? 3 : 2), options.length);
         }
-        
+
         argv[0] = filesystemName;
         argv[1] = "-f";
         if (debug)
             argv[2] = "-d";
         argv[argv.length - 1] = mountPoint.toString();
-        
+
         final LibFuse fuse = init();
         final StructFuseOperations operations = new StructFuseOperations(jnr.ffi.Runtime.getRuntime(fuse), filesystem);
 
@@ -206,13 +206,13 @@ public final class Fuse {
         try {
             process = new ProcessGobbler(Fuse.fusermount, "-z", "-u", mountPoint.toString());
         } catch (IOException e) {
-            process = new ProcessGobbler(Fuse.umount, mountPoint.toString());
+            process = new ProcessGobbler(Fuse.umount, "-f", mountPoint.toString());
         }
         final int res = process.getReturnCode();
         if (res != 0)
             throw new FuseException(res);
     }
-    
+
     private static String[] toOptionsArray(Map<String, String> options) {
         if (options == null) {
             return null;
