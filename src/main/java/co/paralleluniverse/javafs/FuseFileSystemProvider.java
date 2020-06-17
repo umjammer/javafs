@@ -322,21 +322,24 @@ logger.log(Level.INFO, "read: " + path + ", " + offset + ", " + size + ", " + in
                     ch.position(offset);
                 int n = ch.read(buffer);
                 if (n > 0) {
-                    if (!info.noblock())
-                        assert n <= 0 || n == size;
-                    else {
+                    // TODO why blocking set???
+//                    if (!info.noblock()) {
+//logger.log(Level.INFO, "noblock");
+//                        assert /*n <= 0 ||*/ n == size;
+//                    } else {
                         int c;
                         while (n < size) {
                             if ((c = ch.read(buffer)) <= 0)
                                 break;
                             n += c;
                         }
-                    }
-                     return n;
-                }else{
+//                    }
+logger.log(Level.INFO, "read: " + n);
+                    return n;
+                } else {
+logger.log(Level.INFO, "read: 0");
                     return 0; // we did not read any bytes
                 }
-
             } else if (channel instanceof AsynchronousFileChannel) {
                 final AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
                 int n = ch.read(buffer, offset).get();
