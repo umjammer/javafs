@@ -3,7 +3,7 @@ package co.paralleluniverse.fuse;
 import jnr.ffi.NativeType;
 import jnr.ffi.Struct;
 import co.paralleluniverse.fuse.StructFuseOperationsIfaces.*;
-import static jnr.ffi.provider.jffi.ClosureHelper.toNative;
+import static jnr.ffi.provider.jffi.JavaFsClosureHelper.toNative;
 
 class StructFuseOperations extends Struct {
     private final Function<_getattr> getattr = function(_getattr.class);

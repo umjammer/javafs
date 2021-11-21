@@ -1,6 +1,6 @@
 package co.paralleluniverse.fuse;
 
-import jnr.ffi.provider.jffi.ClosureHelper;
+import jnr.ffi.provider.jffi.JavaFsClosureHelper;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import jnr.ffi.Pointer;
@@ -181,7 +181,7 @@ class Filesystem implements
     public final int _readdir(String path, Pointer buf, Pointer fillFunction, @off_t long offset, @In Pointer info) {
         return fs.readdir(path,
                 new StructFuseFileInfo(info, path),
-                new DirectoryFillerImpl(buf, ClosureHelper.getInstance().fromNative(fillFunction, DirectoryFillerImpl.fuse_fill_dir_t.class)));
+                new DirectoryFillerImpl(buf, JavaFsClosureHelper.getInstance().fromNative(fillFunction, DirectoryFillerImpl.fuse_fill_dir_t.class)));
     }
 
     @Override
