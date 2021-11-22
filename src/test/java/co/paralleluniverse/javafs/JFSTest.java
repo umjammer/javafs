@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package co.paralleluniverse.javafs;
 
 import java.io.DataInputStream;
@@ -21,14 +22,12 @@ import com.google.common.jimfs.Jimfs;
 import static com.google.common.truth.Truth.assert_;
 import static org.junit.jupiter.api.Assertions.*;
 
+
 /**
  *
  * @author pron
  */
 public class JFSTest {
-
-    public JFSTest() {
-    }
 
     @Test
     public void test() throws Exception {
@@ -70,10 +69,12 @@ public class JFSTest {
             try (DataInputStream is = new DataInputStream(new FileInputStream(new File(root, "c.txt")))) {
                 assertEquals("goodbye!", is.readUTF());
             }
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
         } finally {
             JavaFS.unmount(mnt);
             Files.delete(mnt);
         }
-
     }
 }

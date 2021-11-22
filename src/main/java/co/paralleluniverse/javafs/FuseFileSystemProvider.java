@@ -663,6 +663,7 @@ logger.log(Level.INFO, "lock: " + path);
     public int fallocate(String path, int mode, long off, long length, StructFuseFileInfo fi) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
     ////////////
 
     private Channel toChannel(StructFuseFileInfo info) {
