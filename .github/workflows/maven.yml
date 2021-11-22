@@ -23,4 +23,5 @@ jobs:
     - name: Build with Maven
       run: |
         brew install osxfuse
+        brew list osxfuse
         mvn -B package --file pom.xml
