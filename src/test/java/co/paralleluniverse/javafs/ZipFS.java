@@ -6,6 +6,7 @@
  * of the Eclipse Public License v1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package co.paralleluniverse.javafs;
 
 import com.sun.nio.zipfs.ZipFileSystem;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Collections;
 import java.util.Map;
+
 
 /**
  * Bypasses the check in ZipFileSystemProvider.newFileSystem that verifies that the given path is in the default FileSystem.

@@ -181,7 +181,7 @@ logger.log(Level.INFO, e.getMessage());
 
     @Override
     protected int mkdir(String path, long mode) {
-logger.log(Level.INFO, "mkdir: " + path);
+logger.log(Level.FINE, "mkdir: " + path);
         try {
             if (fsp.getFileStore(path(path)).supportsFileAttributeView(PosixFileAttributeView.class)) {
                 fsp.createDirectory(path(path), PosixFilePermissions.asFileAttribute(modeToPermissions(mode)));
@@ -196,7 +196,7 @@ logger.log(Level.INFO, "mkdir: " + path);
 
     @Override
     protected int unlink(String path) {
-logger.log(Level.INFO, "unlink: " + path);
+logger.log(Level.FINE, "unlink: " + path);
         try {
             Path p = path(path);
             if (Files.isDirectory(p))
@@ -210,7 +210,7 @@ logger.log(Level.INFO, "unlink: " + path);
 
     @Override
     protected int rmdir(String path) {
-logger.log(Level.INFO, "rmdir: " + path);
+logger.log(Level.FINE, "rmdir: " + path);
         try {
             Path p = path(path);
             if (!Files.isDirectory(p))
@@ -234,7 +234,7 @@ logger.log(Level.INFO, "rmdir: " + path);
 
     @Override
     protected int rename(String path, String newName) {
-logger.log(Level.INFO, "rename: " + path);
+logger.log(Level.FINE, "rename: " + path);
         try {
             fsp.move(path(path), path(newName));
             return 0;
@@ -245,7 +245,7 @@ logger.log(Level.INFO, "rename: " + path);
 
     @Override
     protected int link(String path, String target) {
-logger.log(Level.INFO, "link: " + path);
+logger.log(Level.FINE, "link: " + path);
         try {
             fsp.createLink(path(target), path(path));
             return 0;
@@ -256,7 +256,7 @@ logger.log(Level.INFO, "link: " + path);
 
     @Override
     protected int chmod(String path, long mode) {
-logger.log(Level.INFO, "chmod: " + path);
+logger.log(Level.FINE, "chmod: " + path);
         try {
             if (fsp.getFileStore(path(path)).supportsFileAttributeView(PosixFileAttributeView.class)) {
                 final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
@@ -272,7 +272,7 @@ logger.log(Level.INFO, "chmod: " + path);
 
     @Override
     protected int chown(String path, long uid, long gid) {
-logger.log(Level.INFO, "chown: " + path);
+logger.log(Level.FINE, "chown: " + path);
         try {
             final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
             attrs.setOwner(fs.getUserPrincipalLookupService().lookupPrincipalByName(Long.toString(uid)));
@@ -285,7 +285,7 @@ logger.log(Level.INFO, "chown: " + path);
 
     @Override
     protected int truncate(String path, long offset) {
-logger.log(Level.INFO, "truncate: " + path);
+logger.log(Level.FINE, "truncate: " + path);
         try {
             final SeekableByteChannel ch = fsp.newByteChannel(path(path), EnumSet.of(StandardOpenOption.WRITE));
             ch.truncate(offset);
@@ -297,7 +297,7 @@ logger.log(Level.INFO, "truncate: " + path);
 
     @Override
     protected int open(String path, StructFuseFileInfo info) {
-logger.log(Level.INFO, "open: " + path);
+logger.log(Level.FINE, "open: " + path);
         try {
             final SeekableByteChannel channel = fsp.newByteChannel(path(path), fileInfoToOpenOptions(info));
             final long fh = fileHandle.incrementAndGet();
@@ -311,7 +311,7 @@ logger.log(Level.INFO, "open: " + path);
 
     @Override
     protected int read(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-logger.log(Level.INFO, "read: " + path + ", " + offset + ", " + size + ", " + info.fh());
+logger.log(Level.FINE, "read: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -334,7 +334,7 @@ logger.log(Level.INFO, "read: " + path + ", " + offset + ", " + size + ", " + in
                             n += c;
                         }
 //                    }
-logger.log(Level.INFO, "read: " + n);
+logger.log(Level.FINE, "read: " + n);
                     return n;
                 } else {
 logger.log(Level.INFO, "read: 0");
@@ -354,7 +354,7 @@ logger.log(Level.INFO, "read: 0");
 
     @Override
     protected int write(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-logger.log(Level.INFO, "write: " + path + ", " + offset + ", " + size + ", " + info.fh());
+logger.log(Level.FINE, "write: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
@@ -431,13 +431,13 @@ logger.log(Level.FINE, "statvfs: " + path);
 
     @Override
     protected int flush(String path, StructFuseFileInfo info) {
-logger.log(Level.INFO, "flush: " + path);
+logger.log(Level.FINE, "flush: " + path);
         return 0;
     }
 
     @Override
     public int release(String path, StructFuseFileInfo info) {
-logger.log(Level.INFO, "release: " + path);
+logger.log(Level.FINE, "release: " + path);
         try {
             final Channel ch = toChannel(info);
             ch.close();
@@ -450,7 +450,7 @@ logger.log(Level.INFO, "release: " + path);
 
     @Override
     protected int fsync(String path, int datasync, StructFuseFileInfo info) {
-logger.log(Level.INFO, "fsync: " + path);
+logger.log(Level.FINE, "fsync: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof FileChannel) {
@@ -503,7 +503,7 @@ logger.log(Level.INFO, "fsync: " + path);
 
     @Override
     protected int readdir(String path, StructFuseFileInfo info, DirectoryFiller filler) {
-logger.log(Level.INFO, "readdir: " + path);
+logger.log(Level.FINE, "readdir: " + path);
         final DirectoryStream<Path> ds = DirectoryStream.class.cast(openFiles.get(info.fh()));
         filler.add(toStringIterable(ds));
         return 0;
@@ -552,7 +552,7 @@ logger.log(Level.FINE, "access: " + path);
 
     @Override
     protected int create(String path, long mode, StructFuseFileInfo info) {
-logger.log(Level.INFO, "create: " + path);
+logger.log(Level.FINE, "create: " + path);
         try {
             final Set<OpenOption> options = fileInfoToOpenOptions(info);
             options.add(StandardOpenOption.WRITE);
@@ -569,7 +569,7 @@ logger.log(Level.INFO, "create: " + path);
 
     @Override
     protected int ftruncate(String path, long offset, StructFuseFileInfo info) {
-logger.log(Level.INFO, "ftruncate: " + path);
+logger.log(Level.FINE, "ftruncate: " + path);
         try {
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel)
@@ -590,7 +590,7 @@ logger.log(Level.FINE, "fgetattr: " + path);
 
     @Override
     protected int lock(String path, StructFuseFileInfo info, int command, StructFlock flock) {
-logger.log(Level.INFO, "lock: " + path);
+logger.log(Level.FINE, "lock: " + path);
         try {
             return -Errno.ENOSYS.ordinal();
 //            if (command == StructFlock.CMD_GETLK)
@@ -663,6 +663,7 @@ logger.log(Level.INFO, "lock: " + path);
     public int fallocate(String path, int mode, long off, long length, StructFuseFileInfo fi) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
     ////////////
 
     private Channel toChannel(StructFuseFileInfo info) {

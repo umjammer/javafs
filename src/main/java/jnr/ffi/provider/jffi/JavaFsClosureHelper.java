@@ -25,6 +25,7 @@ package jnr.ffi.provider.jffi;
 
 import java.lang.reflect.AccessibleObject;
 import java.util.Collections;
+import java.util.Map;
 
 import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
@@ -34,25 +35,28 @@ import jnr.ffi.mapper.FromNativeContext;
 import jnr.ffi.mapper.FromNativeConverter;
 import jnr.ffi.provider.ClosureManager;
 
-public class ClosureHelper {
-    public static ClosureHelper getInstance() {
+public class JavaFsClosureHelper {
+    public static JavaFsClosureHelper getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
     private static class SingletonHolder {
-        private static final ClosureHelper INSTANCE = new ClosureHelper();
+        private static final JavaFsClosureHelper INSTANCE = new JavaFsClosureHelper();
     }
 
     private final SimpleNativeContext ctx;
     private final ClassValue<FromNativeConverter<?, Pointer>> cache;
 
-    private ClosureHelper() {
+    @SuppressWarnings("unchecked")
+    private JavaFsClosureHelper() {
         try {
             final ClosureManager closureManager = Runtime.getSystemRuntime().getClosureManager();
 
-            final AsmClassLoader cl = (AsmClassLoader) accessible(NativeClosureManager.class.getDeclaredField("classLoader")).get(closureManager);
+            // https://github.com/SerCeMan/jnr-fuse/commit/779e2de0d38121ecca7ffd7d974b9bcda19fd9c0
+            Map<ClassLoader, AsmClassLoader> asmClassLoaders = (Map<ClassLoader, AsmClassLoader>) accessible(NativeClosureManager.class.getDeclaredField("asmClassLoaders")).get(closureManager);
+            final AsmClassLoader cl = asmClassLoaders.get(JavaFsClosureHelper.class.getClassLoader());
             final CompositeTypeMapper ctm = (CompositeTypeMapper) accessible(NativeClosureManager.class.getDeclaredField("typeMapper")).get(closureManager);
-            this.ctx = new SimpleNativeContext(Runtime.getSystemRuntime(), Collections.EMPTY_LIST);
+            this.ctx = new SimpleNativeContext(Runtime.getSystemRuntime(), Collections.emptyList());
             this.cache = new ClassValue<FromNativeConverter<?, Pointer>>() {
                 @Override
                 protected FromNativeConverter<?, Pointer> computeValue(Class<?> closureClass) {
