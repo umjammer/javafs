@@ -30,7 +30,7 @@ public final class JavaFS {
         if (readonly)
             fs = new ReadOnlyFileSystem(fs);
         boolean singleThread = false;
-        if (mountOptions.containsKey(ENV_SINGLE_THREAD)) {
+        if (mountOptions != null && mountOptions.containsKey(ENV_SINGLE_THREAD)) {
             singleThread = true;
             mountOptions.remove(ENV_SINGLE_THREAD);
         }
