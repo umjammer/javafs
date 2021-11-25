@@ -30,14 +30,14 @@ public class StructFusePollHandle {
             super(runtime);
         }
     }
-    
+
     private static final Layout layout = new Layout(Runtime.getSystemRuntime());
     private final Pointer p;
 
     public StructFusePollHandle(Pointer p) {
         this.p = p;
     }
-    
+
     public long kh() {
         return layout.kh.get(p);
     }

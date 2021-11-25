@@ -58,15 +58,15 @@ class StructFuseBuf {
     public final long size() {
         return layout.size.get(p);
     }
-    
+
     public final FuseBufFlags flags() {
         return layout.flags.get(p);
     }
-    
+
     public final int fd() {
         return layout.fd.get(p);
     }
-    
+
     public final long pos() {
         return layout.pos.get(p);
     }

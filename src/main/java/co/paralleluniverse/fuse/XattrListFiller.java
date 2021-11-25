@@ -23,16 +23,16 @@ public final class XattrListFiller {
         for (final String xattr : xattrs) {
             if (addedXattrs.contains(xattr))
                 continue;
-            
+
             if (currentSize >= maxSize && buffer != null)
                 return false;
-            
+
             bytes = xattr.getBytes();
             hasNullByte = bytes[bytes.length - 1] == 0;
             size = bytes.length + (hasNullByte ? 0 : 1);
             if (currentSize + size > maxSize && buffer != null)
                 return false;
-            
+
             addedXattrs.add(xattr);
             if (buffer != null) {
                 buffer.put(bytes);

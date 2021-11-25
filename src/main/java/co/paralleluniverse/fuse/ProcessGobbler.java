@@ -22,7 +22,7 @@ final class ProcessGobbler {
         private String getContents() {
             if (failed)
                 return null;
-            
+
             return contents;
         }
 

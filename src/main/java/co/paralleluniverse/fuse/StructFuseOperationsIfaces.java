@@ -48,20 +48,20 @@ final class StructFuseOperationsIfaces {
 
     public static interface _listxattr   { @Delegate int _listxattr(String path, Pointer buffer, @size_t long size); }
     public static interface _removexattr { @Delegate int _removexattr(String path, String xattr); }
-    
+
     public static interface _getxattr_MAC     { @Delegate int _getxattr(String path, String xattr, Pointer buffer, @size_t long size, @u_int32_t long position); }
     public static interface _setxattr_MAC     { @Delegate int _setxattr(String path, String xattr, Pointer value, @size_t long size, int flags, int position); }
 
     public static interface _getxattr_NOT_MAC { @Delegate int _getxattr(String path, String xattr, Pointer buffer, @size_t long size); }
     public static interface _setxattr_NOT_MAC { @Delegate int _setxattr(String path, String xattr, Pointer value, @size_t long size, int flags); }
-    
+
     public static interface _ioctl     { @Delegate void _ioctl(String path, int cmd, Pointer arg, Pointer fi, @u_int32_t long flags, Pointer data); }
     public static interface _poll      { @Delegate void _poll(String path, Pointer fi, Pointer ph, Pointer reventsp); }
     public static interface _write_buf { @Delegate void _write_buf(String path, Pointer buf, @off_t long off, Pointer fi); }
     public static interface _read_buf  { @Delegate void _read_buf(String path, Pointer bufp, @size_t long size, @off_t long off, Pointer fi); }
     public static interface _flock     { @Delegate void _flock(String path, Pointer fi, int op); }
     public static interface _fallocate { @Delegate void _fallocate(String path, int mode, @off_t long off, @off_t long length, Pointer fi); }
-    
+
     private StructFuseOperationsIfaces() {
     }
 }
