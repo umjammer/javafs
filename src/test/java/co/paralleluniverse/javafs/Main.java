@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
+
     public static void main(final String... args) throws Exception {
         try {
             if (args.length < 1 || args.length > 3)
