@@ -70,7 +70,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
     private final AtomicLong fileHandle = new AtomicLong(0);
     private final boolean debug;
     private static final long BLOCK_SIZE = 4096;
-    private static Logger logger = Logger.getLogger(FuseFileSystemProvider.class.getName());
+    private static final Logger logger = Logger.getLogger(FuseFileSystemProvider.class.getName());
 
     public FuseFileSystemProvider(FileSystemProvider fsp, URI uri, boolean debug) {
         this.fsp = fsp;

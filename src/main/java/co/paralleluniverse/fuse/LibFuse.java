@@ -5,10 +5,10 @@ import jnr.ffi.types.size_t;
 import jnr.ffi.types.ssize_t;
 
 public interface LibFuse {
-    static interface LibFuseProbe {
+    interface LibFuseProbe {
     }
 
-    static interface LibMacFuseProbe extends LibFuseProbe {
+    interface LibMacFuseProbe extends LibFuseProbe {
         String macfuse_version();
     }
 
