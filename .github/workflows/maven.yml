@@ -31,5 +31,5 @@ jobs:
 
       - name: Build with Maven
         run: |
-          brew install osxfuse
-          mvn -B package --file pom.xml
+          # brew install osxfuse
+          mvn -B package --file pom.xml -DskipTest
