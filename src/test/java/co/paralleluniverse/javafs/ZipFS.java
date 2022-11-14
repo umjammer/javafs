@@ -52,7 +52,7 @@ public final class ZipFS {
         if (path.getFileSystem() instanceof ZipFileSystem)
             throw new IllegalArgumentException("Can't create a ZIP file system nested in a ZIP file system. (" + path + " is nested in " + path.getFileSystem() + ")");
         try {
-            return (ZipFileSystem) ZIP_FILE_SYSTEM_CONSTRUCTOR.newInstance(ZIP_FILE_SYSTEM_PROVIDER, path, Collections.emptyMap());
+            return ZIP_FILE_SYSTEM_CONSTRUCTOR.newInstance(ZIP_FILE_SYSTEM_PROVIDER, path, Collections.emptyMap());
         } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         } catch (Exception e) {

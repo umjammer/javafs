@@ -5,9 +5,10 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
@@ -17,6 +18,9 @@ import java.util.logging.Logger;
 import jnr.ffi.Struct;
 
 public final class Fuse {
+
+    private static final Logger LOGGER = Logger.getLogger(Fuse.class.getName());
+
     private static final class MountThread extends Thread {
         private Integer result = null;
         private final String[] args;
@@ -144,6 +148,7 @@ public final class Fuse {
         if (debug)
             argv[2] = "-d";
         argv[argv.length - 1] = mountPoint.toString();
+LOGGER.fine(Arrays.toString(argv));
 
         final LibFuse fuse = init();
         final StructFuseOperations operations = new StructFuseOperations(jnr.ffi.Runtime.getRuntime(fuse), filesystem);
@@ -161,7 +166,7 @@ public final class Fuse {
             mountThread.start();
             try {
                 mountThread.join(errorSleepDuration);
-            } catch (final InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
             result = mountThread.getResult();
         }
@@ -209,6 +214,7 @@ public final class Fuse {
             process = new ProcessGobbler(Fuse.umount, "-f", mountPoint.toString());
         }
         final int res = process.getReturnCode();
+LOGGER.fine(process.toString());
         if (res != 0)
             throw new FuseException(res);
     }

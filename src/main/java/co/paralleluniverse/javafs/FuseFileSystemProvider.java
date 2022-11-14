@@ -70,7 +70,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
     private final AtomicLong fileHandle = new AtomicLong(0);
     private final boolean debug;
     private static final long BLOCK_SIZE = 4096;
-    private static Logger logger = Logger.getLogger(FuseFileSystemProvider.class.getName());
+    private static final Logger logger = Logger.getLogger(FuseFileSystemProvider.class.getName());
 
     public FuseFileSystemProvider(FileSystemProvider fsp, URI uri, boolean debug) {
         this.fsp = fsp;
@@ -134,7 +134,7 @@ logger.log(Level.FINE, "getattr: " + path);
                 try {
                     pas = fsp.readAttributes(p, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
                 } catch (UnsupportedOperationException e) {
-logger.log(Level.INFO, e.getMessage());
+logger.log(Level.FINE, e.getMessage());
                 }
             }
             if (pas != null) {
@@ -157,6 +157,7 @@ logger.log(Level.INFO, e.getMessage());
                 int gid = (int) uattrs.get("gid");
                 stat.gid(gid);
             } catch (Exception e) {
+logger.log(Level.FINE, e.getMessage());
             }
             return 0;
         } catch (Exception e) {
@@ -359,7 +360,7 @@ logger.log(Level.FINE, "write: " + path + ", " + offset + ", " + size + ", " + i
             final Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
                 final SeekableByteChannel ch = ((SeekableByteChannel) channel);
-                if (!info.append() && !info.nonseekable())
+                if (!info.append() && !info.nonseekable()) {
 try { // TODO ad-hoc
                     ch.position(offset);
 } catch (IOException e) {
@@ -375,6 +376,7 @@ try { // TODO ad-hoc
  } else {
   throw e;
  }
+}
 }
                 int n = ch.write(buffer);
                 if (n > 0) {

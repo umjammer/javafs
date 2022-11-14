@@ -9,18 +9,15 @@ package co.paralleluniverse.javafs;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.google.common.jimfs.Jimfs;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.jimfs.Jimfs;
-
 import static com.google.common.truth.Truth.assert_;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -44,29 +41,29 @@ public class JFSTest {
             File root = mnt.toFile();
 
             // verify that we are, in fact, in Jimfs
-            try (DataInputStream is = new DataInputStream(new FileInputStream(new File(root, "jimfs.txt")))) {
+            try (DataInputStream is = new DataInputStream(Files.newInputStream(new File(root, "jimfs.txt").toPath()))) {
                 assertEquals("JIMFS", is.readUTF());
             }
 
-            try (DataOutputStream os = new DataOutputStream(new FileOutputStream(new File(root, "a.txt")))) {
+            try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(new File(root, "a.txt").toPath()))) {
                 os.writeUTF("hello!");
             }
-            try (DataOutputStream os = new DataOutputStream(new FileOutputStream(new File(root, "b.txt")))) {
+            try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(new File(root, "b.txt").toPath()))) {
                 os.writeUTF("wha?");
             }
-            try (DataOutputStream os = new DataOutputStream(new FileOutputStream(new File(root, "c.txt")))) {
+            try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(new File(root, "c.txt").toPath()))) {
                 os.writeUTF("goodbye!");
             }
 
-            assert_().that(root.list()).asList().has().allOf("a.txt", "b.txt", "c.txt", "jimfs.txt");
+            assert_().that(root.list()).asList().containsAtLeast("a.txt", "b.txt", "c.txt", "jimfs.txt");
 
-            try (DataInputStream is = new DataInputStream(new FileInputStream(new File(root, "a.txt")))) {
+            try (DataInputStream is = new DataInputStream(Files.newInputStream(new File(root, "a.txt").toPath()))) {
                 assertEquals("hello!", is.readUTF());
             }
-            try (DataInputStream is = new DataInputStream(new FileInputStream(new File(root, "b.txt")))) {
+            try (DataInputStream is = new DataInputStream(Files.newInputStream(new File(root, "b.txt").toPath()))) {
                 assertEquals("wha?", is.readUTF());
             }
-            try (DataInputStream is = new DataInputStream(new FileInputStream(new File(root, "c.txt")))) {
+            try (DataInputStream is = new DataInputStream(Files.newInputStream(new File(root, "c.txt").toPath()))) {
                 assertEquals("goodbye!", is.readUTF());
             }
         } catch (Throwable e) {

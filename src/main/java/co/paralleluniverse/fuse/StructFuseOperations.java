@@ -83,7 +83,7 @@ class StructFuseOperations extends Struct {
     private final Pointer read_buf = new Pointer();
     private final Function<_flock> flock = function(_flock.class);
     private final Function<_fallocate> fallocate = function(_fallocate.class);
-    
+
     @SuppressWarnings("unused")
     public StructFuseOperations(jnr.ffi.Runtime runtime, FuseFilesystem fs) {
         super(runtime);

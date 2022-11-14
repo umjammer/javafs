@@ -20,7 +20,7 @@ public class StructFuseBufvec {
         public final size_t idx = new size_t(); // Index of current buffer within the array
         public final size_t off = new size_t(); // Current offset within the current buffer
         public final StructFuseBuf.Layout buf = inner(StructFuseBuf.layout); // Array of buffers
-        
+
         private Layout(Runtime runtime) {
             super(runtime);
         }
@@ -33,19 +33,19 @@ public class StructFuseBufvec {
     public StructFuseBufvec(Pointer p) {
         this.p = p;
     }
-    
+
     public final long cout() {
         return layout.count.get(p);
     }
-    
+
     public final long idx() {
         return layout.idx.get(p);
     }
-    
+
     public final long off() {
         return layout.off.get(p);
     }
-    
+
     public final StructFuseBuf buf() {
         return new StructFuseBuf(p.getPointer(layout.buf.offset()));
     }

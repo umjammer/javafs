@@ -8,8 +8,10 @@ package co.paralleluniverse.fuse;
  * @since 05.06.15
  */
 final class XAttrConstants {
-    public static final int XATTR_CREATE = 1;	/* set value, fail if attr already exists.  */
-    public static final int XATTR_REPLACE = 2;	/* set value, fail if attr does not exist.  */
+    /** set value, fail if attr already exists.  */
+    public static final int XATTR_CREATE = 1;
+    /** set value, fail if attr does not exist.  */
+    public static final int XATTR_REPLACE = 2;
 
     private XAttrConstants() {
     }

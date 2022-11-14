@@ -1,5 +1,8 @@
-[![Release](https://jitpack.io/v/umjammer/javafs.svg)](https://jitpack.io/#umjammer/javafs)  [![Java CI with Maven](https://github.com/umjammer/javafs/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/javafs/actions) [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
-
+[![Release](https://jitpack.io/v/umjammer/javafs.svg)](https://jitpack.io/#umjammer/javafs)
+[![Java CI with Maven](https://github.com/umjammer/javafs/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/javafs/actions)
+[![CodeQL](https://github.com/umjammer/javafs/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/javafs/actions/workflows/codeql-analysis.yml)
+![Java](https://img.shields.io/badge/Java-8-b07219)
+[![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
 
 # JavaFS
 
@@ -7,7 +10,7 @@ Java filesystems as FUSE
 
 ## Requirements
 
-Java 7 and up.
+Java 8 and up.
 
 Your OS must support FUSE or have it installed.
 
@@ -24,7 +27,7 @@ The API consists of a single class with two methods:
 $ java -cp ... co.paralleluniverse.javafs.Main [-r] <mountpoint> [<zipfile>]
 ```
 
-#### Compatibility
+### Compatibility
 
 * OS X with [MacFUSE]/[fuse4x]/[OSXFUSE] on Intel architectures
 * Linux with [FUSE][Linux-Fuse] on Intel, PowerPC and ARM architectures

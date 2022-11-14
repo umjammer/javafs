@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
+
     public static void main(final String... args) throws Exception {
         try {
             if (args.length < 1 || args.length > 3)
@@ -21,14 +22,14 @@ public class Main {
             }
             final String mountPoint = args[i++];
             final FileSystem fs = i >= args.length ? Jimfs.newFileSystem() : ZipFS.newZipFileSystem(Paths.get(args[i++]));
-            
+
             System.out.println("========================");
             System.out.println("Mounting filesystem " + fs + " at " + mountPoint + (readonly ? " READONLY" : ""));
             System.out.println("========================");
-            
+
             Map<String, String> options = new HashMap<>();
             options.put("fsname", fs.getClass().getSimpleName() + "@" + System.currentTimeMillis());
-            
+
             JavaFS.mount(fs, Paths.get(mountPoint), readonly, true, options);
             Thread.sleep(Long.MAX_VALUE);
         } catch (IllegalArgumentException e) {
