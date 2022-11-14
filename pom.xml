@@ -5,7 +5,7 @@
 
   <groupId>co.paralleluniverse</groupId>
   <artifactId>javafs</artifactId>
-  <version>0.1.6v</version>
+  <version>0.1.7v</version>
 
   <name>javafs</name>
   <url>https://github.com/umjammer/javafs</url>
@@ -49,7 +49,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.9.0</version>
+        <version>5.9.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -85,10 +85,10 @@
     </dependency>
 
     <dependency>
-        <groupId>com.google.truth</groupId>
-        <artifactId>truth</artifactId>
-        <version>1.1.3</version>
-        <scope>test</scope>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <version>1.1.3</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.jimfs</groupId>
@@ -99,7 +99,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.7</version>
+      <version>1.1.8</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
