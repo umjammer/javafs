@@ -3,6 +3,7 @@ package co.paralleluniverse.javafs;
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -44,8 +45,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.lang.System.Logger;
 
 import co.paralleluniverse.fuse.AccessConstants;
 import co.paralleluniverse.fuse.DirectoryFiller;
@@ -70,7 +70,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
     private final AtomicLong fileHandle = new AtomicLong(0);
     private final boolean debug;
     private static final long BLOCK_SIZE = 4096;
-    private static final Logger logger = Logger.getLogger(FuseFileSystemProvider.class.getName());
+    private static final Logger logger = System.getLogger(FuseFileSystemProvider.class.getName());
 
     public FuseFileSystemProvider(FileSystemProvider fsp, URI uri, boolean debug) {
         this.fsp = fsp;
@@ -108,7 +108,7 @@ class FuseFileSystemProvider extends FuseFilesystem {
 
     @Override
     protected int getattr(String path, StructStat stat) {
-logger.log(Level.FINE, "getattr: " + path);
+logger.log(Level.DEBUG, "getattr: " + path);
         try {
             Path p = path(path);
             BasicFileAttributes attributes = fsp.readAttributes(p, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
@@ -134,7 +134,7 @@ logger.log(Level.FINE, "getattr: " + path);
                 try {
                     pas = fsp.readAttributes(p, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
                 } catch (UnsupportedOperationException e) {
-logger.log(Level.FINE, e.getMessage());
+logger.log(Level.DEBUG, e.getMessage());
                 }
             }
             if (pas != null) {
@@ -150,14 +150,14 @@ logger.log(Level.FINE, e.getMessage());
             stat.mode(mode);
 
             try {
-                final Map<String, Object> uattrs = fsp.readAttributes(p, "unix:*", LinkOption.NOFOLLOW_LINKS);
+                Map<String, Object> uattrs = fsp.readAttributes(p, "unix:*", LinkOption.NOFOLLOW_LINKS);
                 int uid = (int) uattrs.get("uid");
                 stat.uid(uid);
 
                 int gid = (int) uattrs.get("gid");
                 stat.gid(gid);
             } catch (Exception e) {
-logger.log(Level.FINE, e.getMessage());
+logger.log(Level.DEBUG, e.getMessage());
             }
             return 0;
         } catch (Exception e) {
@@ -182,7 +182,7 @@ logger.log(Level.FINE, e.getMessage());
 
     @Override
     protected int mkdir(String path, long mode) {
-logger.log(Level.FINE, "mkdir: " + path);
+logger.log(Level.DEBUG, "mkdir: " + path);
         try {
             if (fsp.getFileStore(path(path)).supportsFileAttributeView(PosixFileAttributeView.class)) {
                 fsp.createDirectory(path(path), PosixFilePermissions.asFileAttribute(modeToPermissions(mode)));
@@ -197,7 +197,7 @@ logger.log(Level.FINE, "mkdir: " + path);
 
     @Override
     protected int unlink(String path) {
-logger.log(Level.FINE, "unlink: " + path);
+logger.log(Level.DEBUG, "unlink: " + path);
         try {
             Path p = path(path);
             if (Files.isDirectory(p))
@@ -211,7 +211,7 @@ logger.log(Level.FINE, "unlink: " + path);
 
     @Override
     protected int rmdir(String path) {
-logger.log(Level.FINE, "rmdir: " + path);
+logger.log(Level.DEBUG, "rmdir: " + path);
         try {
             Path p = path(path);
             if (!Files.isDirectory(p))
@@ -235,7 +235,7 @@ logger.log(Level.FINE, "rmdir: " + path);
 
     @Override
     protected int rename(String path, String newName) {
-logger.log(Level.FINE, "rename: " + path);
+logger.log(Level.DEBUG, "rename: " + path);
         try {
             fsp.move(path(path), path(newName));
             return 0;
@@ -246,7 +246,7 @@ logger.log(Level.FINE, "rename: " + path);
 
     @Override
     protected int link(String path, String target) {
-logger.log(Level.FINE, "link: " + path);
+logger.log(Level.DEBUG, "link: " + path);
         try {
             fsp.createLink(path(target), path(path));
             return 0;
@@ -257,10 +257,10 @@ logger.log(Level.FINE, "link: " + path);
 
     @Override
     protected int chmod(String path, long mode) {
-logger.log(Level.FINE, "chmod: " + path);
+logger.log(Level.DEBUG, "chmod: " + path);
         try {
             if (fsp.getFileStore(path(path)).supportsFileAttributeView(PosixFileAttributeView.class)) {
-                final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
+                PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
                 attrs.setPermissions(modeToPermissions(mode));
                 return 0;
             } else {
@@ -273,9 +273,9 @@ logger.log(Level.FINE, "chmod: " + path);
 
     @Override
     protected int chown(String path, long uid, long gid) {
-logger.log(Level.FINE, "chown: " + path);
+logger.log(Level.DEBUG, "chown: " + path);
         try {
-            final PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
+            PosixFileAttributeView attrs = fsp.getFileAttributeView(path(path), PosixFileAttributeView.class);
             attrs.setOwner(fs.getUserPrincipalLookupService().lookupPrincipalByName(Long.toString(uid)));
             attrs.setGroup(fs.getUserPrincipalLookupService().lookupPrincipalByGroupName(Long.toString(gid)));
             return 0;
@@ -286,9 +286,9 @@ logger.log(Level.FINE, "chown: " + path);
 
     @Override
     protected int truncate(String path, long offset) {
-logger.log(Level.FINE, "truncate: " + path);
+logger.log(Level.DEBUG, "truncate: " + path);
         try {
-            final SeekableByteChannel ch = fsp.newByteChannel(path(path), EnumSet.of(StandardOpenOption.WRITE));
+            SeekableByteChannel ch = fsp.newByteChannel(path(path), EnumSet.of(StandardOpenOption.WRITE));
             ch.truncate(offset);
             return 0;
         } catch (Exception e) {
@@ -298,10 +298,10 @@ logger.log(Level.FINE, "truncate: " + path);
 
     @Override
     protected int open(String path, StructFuseFileInfo info) {
-logger.log(Level.FINE, "open: " + path);
+logger.log(Level.DEBUG, "open: " + path);
         try {
-            final SeekableByteChannel channel = fsp.newByteChannel(path(path), fileInfoToOpenOptions(info));
-            final long fh = fileHandle.incrementAndGet();
+            SeekableByteChannel channel = fsp.newByteChannel(path(path), fileInfoToOpenOptions(info));
+            long fh = fileHandle.incrementAndGet();
             openFiles.put(fh, channel);
             info.fh(fh);
             return 0;
@@ -312,11 +312,11 @@ logger.log(Level.FINE, "open: " + path);
 
     @Override
     protected int read(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-logger.log(Level.FINE, "read: " + path + ", " + offset + ", " + size + ", " + info.fh());
+logger.log(Level.DEBUG, "read: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
-            final Channel channel = toChannel(info);
+            Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
-                final SeekableByteChannel ch = ((SeekableByteChannel) channel);
+                SeekableByteChannel ch = ((SeekableByteChannel) channel);
                 if (info.nonseekable())
                     assert offset == ch.position();
                 else
@@ -335,14 +335,14 @@ logger.log(Level.FINE, "read: " + path + ", " + offset + ", " + size + ", " + in
                             n += c;
                         }
 //                    }
-logger.log(Level.FINE, "read: " + n);
+logger.log(Level.DEBUG, "read: " + n);
                     return n;
                 } else {
 logger.log(Level.INFO, "read: 0");
                     return 0; // we did not read any bytes
                 }
             } else if (channel instanceof AsynchronousFileChannel) {
-                final AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
+                AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
                 int n = ch.read(buffer, offset).get();
                 assert n == size;
                 return n;
@@ -355,11 +355,11 @@ logger.log(Level.INFO, "read: 0");
 
     @Override
     protected int write(String path, ByteBuffer buffer, long size, long offset, StructFuseFileInfo info) {
-logger.log(Level.FINE, "write: " + path + ", " + offset + ", " + size + ", " + info.fh());
+logger.log(Level.DEBUG, "write: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
-            final Channel channel = toChannel(info);
+            Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel) {
-                final SeekableByteChannel ch = ((SeekableByteChannel) channel);
+                SeekableByteChannel ch = ((SeekableByteChannel) channel);
                 if (!info.append() && !info.nonseekable()) {
 try { // TODO ad-hoc
                     ch.position(offset);
@@ -367,7 +367,7 @@ try { // TODO ad-hoc
  if (e.getMessage().contains("@vavi")) {
   long o = Long.parseLong(e.getMessage().substring(9, e.getMessage().length() - 1));
   if (offset > o) {
-   logger.log(Level.SEVERE, "write: skip bad position: " + offset);
+   logger.log(Level.ERROR, "write: skip bad position: " + offset);
    throw new IOException("cannot skip last bytes send", e);
   } else {
    logger.log(Level.WARNING, "write: correct bad position: " + offset + " -> " + o);
@@ -393,20 +393,20 @@ try { // TODO ad-hoc
                 }
                 return n;
             } else if (channel instanceof AsynchronousFileChannel) {
-                final AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
+                AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
                 int n = ch.write(buffer, offset).get();
                 return n;
             } else
                 throw new UnsupportedOperationException();
         } catch (Exception e) {
-e.printStackTrace();
+logger.log(Level.ERROR, e.getMessage(), e);
             return -errno(e);
         }
     }
 
     @Override
     protected int statfs(String path, StructStatvfs statvfs) {
-logger.log(Level.FINE, "statvfs: " + path);
+logger.log(Level.DEBUG, "statvfs: " + path);
         try {
             boolean hasStore = false; // only one store allowed
             for (FileStore store : fs.getFileStores()) {
@@ -433,15 +433,15 @@ logger.log(Level.FINE, "statvfs: " + path);
 
     @Override
     protected int flush(String path, StructFuseFileInfo info) {
-logger.log(Level.FINE, "flush: " + path);
+logger.log(Level.DEBUG, "flush: " + path);
         return 0;
     }
 
     @Override
     public int release(String path, StructFuseFileInfo info) {
-logger.log(Level.FINE, "release: " + path);
+logger.log(Level.DEBUG, "release: " + path);
         try {
-            final Channel ch = toChannel(info);
+            Channel ch = toChannel(info);
             ch.close();
             openFiles.remove(info.fh());
             return 0;
@@ -452,14 +452,14 @@ logger.log(Level.FINE, "release: " + path);
 
     @Override
     protected int fsync(String path, int datasync, StructFuseFileInfo info) {
-logger.log(Level.FINE, "fsync: " + path);
+logger.log(Level.DEBUG, "fsync: " + path);
         try {
-            final Channel channel = toChannel(info);
+            Channel channel = toChannel(info);
             if (channel instanceof FileChannel) {
-                final FileChannel ch = ((FileChannel) channel);
+                FileChannel ch = ((FileChannel) channel);
                 ch.force(datasync == 0);
             } else if (channel instanceof AsynchronousFileChannel) {
-                final AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
+                AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
                 ch.force(true);
                 ch.force(datasync == 0);
             } else
@@ -493,8 +493,8 @@ logger.log(Level.FINE, "fsync: " + path);
     @Override
     protected int opendir(String path, StructFuseFileInfo info) {
         try {
-            final DirectoryStream<Path> ds = fsp.newDirectoryStream(path(path), p -> true);
-            final long fh = fileHandle.incrementAndGet();
+            DirectoryStream<Path> ds = fsp.newDirectoryStream(path(path), p -> true);
+            long fh = fileHandle.incrementAndGet();
             openFiles.put(fh, ds);
             info.fh(fh);
             return 0;
@@ -505,8 +505,9 @@ logger.log(Level.FINE, "fsync: " + path);
 
     @Override
     protected int readdir(String path, StructFuseFileInfo info, DirectoryFiller filler) {
-logger.log(Level.FINE, "readdir: " + path);
-        final DirectoryStream<Path> ds = DirectoryStream.class.cast(openFiles.get(info.fh()));
+logger.log(Level.DEBUG, "readdir: " + path);
+        @SuppressWarnings("unchecked")
+        DirectoryStream<Path> ds = (DirectoryStream<Path>) openFiles.get(info.fh());
         filler.add(toStringIterable(ds));
         return 0;
     }
@@ -514,7 +515,8 @@ logger.log(Level.FINE, "readdir: " + path);
     @Override
     protected int releasedir(String path, StructFuseFileInfo info) {
         try {
-            final DirectoryStream<Path> ds = DirectoryStream.class.cast(openFiles.get(info.fh()));
+            @SuppressWarnings("unchecked")
+            DirectoryStream<Path> ds = (DirectoryStream<Path>) openFiles.get(info.fh());
             ds.close();
             return 0;
         } catch (Exception e) {
@@ -523,7 +525,7 @@ logger.log(Level.FINE, "readdir: " + path);
     }
 
     @Override
-    protected int fsyncdir(String path, int datasync, StructFuseFileInfo info) {
+    protected int fsyncdir(String path, int dataSync, StructFuseFileInfo info) {
         return 0;
     }
 
@@ -542,9 +544,9 @@ logger.log(Level.FINE, "readdir: " + path);
 
     @Override
     protected int access(String path, int access) {
-logger.log(Level.FINE, "access: " + path);
+logger.log(Level.DEBUG, "access: " + path);
         try {
-            final Path p = path(path);
+            Path p = path(path);
             fsp.checkAccess(p, toAccessMode(access, Files.isDirectory(p)));
             return 0;
         } catch (Exception e) {
@@ -554,13 +556,13 @@ logger.log(Level.FINE, "access: " + path);
 
     @Override
     protected int create(String path, long mode, StructFuseFileInfo info) {
-logger.log(Level.FINE, "create: " + path);
+logger.log(Level.DEBUG, "create: " + path);
         try {
-            final Set<OpenOption> options = fileInfoToOpenOptions(info);
+            Set<OpenOption> options = fileInfoToOpenOptions(info);
             options.add(StandardOpenOption.WRITE);
             options.add(StandardOpenOption.CREATE_NEW);
-            final SeekableByteChannel channel = fsp.newByteChannel(path(path), options);
-            final long fh = fileHandle.incrementAndGet();
+            SeekableByteChannel channel = fsp.newByteChannel(path(path), options);
+            long fh = fileHandle.incrementAndGet();
             openFiles.put(fh, channel);
             info.fh(fh);
             return 0;
@@ -571,9 +573,9 @@ logger.log(Level.FINE, "create: " + path);
 
     @Override
     protected int ftruncate(String path, long offset, StructFuseFileInfo info) {
-logger.log(Level.FINE, "ftruncate: " + path);
+logger.log(Level.DEBUG, "ftruncate: " + path);
         try {
-            final Channel channel = toChannel(info);
+            Channel channel = toChannel(info);
             if (channel instanceof SeekableByteChannel)
                 ((SeekableByteChannel) channel).truncate(offset);
             else if (channel instanceof AsynchronousFileChannel)
@@ -586,13 +588,13 @@ logger.log(Level.FINE, "ftruncate: " + path);
 
     @Override
     protected int fgetattr(String path, StructStat stat, StructFuseFileInfo info) {
-logger.log(Level.FINE, "fgetattr: " + path);
+logger.log(Level.DEBUG, "fgetattr: " + path);
         return getattr(path, stat);
     }
 
     @Override
     protected int lock(String path, StructFuseFileInfo info, int command, StructFlock flock) {
-logger.log(Level.FINE, "lock: " + path);
+logger.log(Level.DEBUG, "lock: " + path);
         try {
             return -Errno.ENOSYS.ordinal();
 //            if (command == StructFlock.CMD_GETLK)
@@ -673,7 +675,7 @@ logger.log(Level.FINE, "lock: " + path);
     }
 
     private static Set<OpenOption> fileInfoToOpenOptions(StructFuseFileInfo info) {
-        final Set<OpenOption> options = new HashSet<>();
+        Set<OpenOption> options = new HashSet<>();
         if (info != null) {
             if (info.create())
                 options.add(StandardOpenOption.CREATE);
@@ -698,7 +700,7 @@ logger.log(Level.FINE, "lock: " + path);
     }
 
     private static Set<PosixFilePermission> modeToPermissions(long mode) {
-        final EnumSet<PosixFilePermission> permissions = EnumSet.noneOf(PosixFilePermission.class);
+        EnumSet<PosixFilePermission> permissions = EnumSet.noneOf(PosixFilePermission.class);
         if ((mode & TypeMode.S_IRUSR) != 0)
             permissions.add(PosixFilePermission.OWNER_READ);
         if ((mode & TypeMode.S_IWUSR) != 0)
@@ -764,33 +766,29 @@ logger.log(Level.FINE, "lock: " + path);
             modes.add(AccessMode.WRITE);
         if (!dir && (access & AccessConstants.X_OK) != 0)
             modes.add(AccessMode.EXECUTE);
-        return modes.toArray(new AccessMode[modes.size()]);
+        return modes.toArray(AccessMode[]::new);
     }
 
-    private static Iterable<String> toStringIterable(final Iterable<Path> iterable) {
-        return new Iterable<String>() {
+    private static Iterable<String> toStringIterable(Iterable<Path> iterable) {
+        return () -> {
+            Iterator<Path> it = iterable.iterator();
+            return new Iterator<>() {
 
-            @Override
-            public Iterator<String> iterator() {
-                final Iterator<Path> it = iterable.iterator();
-                return new Iterator<String>() {
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
 
-                    @Override
-                    public boolean hasNext() {
-                        return it.hasNext();
-                    }
+                @Override
+                public String next() {
+                    return it.next().toString(); // TODO unicode normalize
+                }
 
-                    @Override
-                    public String next() {
-                        return it.next().toString(); // TODO unicode normalize
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-            }
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
         };
     }
 
@@ -801,7 +799,7 @@ logger.log(Level.FINE, "lock: " + path);
             else
                 getLogger().log(Level.WARNING, e.getClass().getName(), e);
         }
-        final Errno en = errno0(e);
+        Errno en = errno0(e);
         if (en == null) {
 logger.log(Level.WARNING, "error is null???");
             return 0;
@@ -846,8 +844,8 @@ logger.log(Level.WARNING, "error is null???");
     }
 
     private static void fillBufferWithString(String str, ByteBuffer buffer, long size) {
-        final byte[] bytes = str.getBytes();
-        final int s = (int) Math.min(Integer.MAX_VALUE, size - 1);
+        byte[] bytes = str.getBytes();
+        int s = (int) Math.min(Integer.MAX_VALUE, size - 1);
         buffer.put(bytes, 0, Math.min(bytes.length, s));
         buffer.put((byte) 0);
         buffer.flip();

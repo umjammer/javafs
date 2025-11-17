@@ -2,7 +2,6 @@ package co.paralleluniverse.fuse;
 
 import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
-import jnr.ffi.Struct;
 import jnr.ffi.StructLayout;
 
 final class StructTimespec {

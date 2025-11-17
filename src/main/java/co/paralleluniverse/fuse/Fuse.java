@@ -1,6 +1,7 @@
 package co.paralleluniverse.fuse;
 
 import java.io.IOException;
+import java.lang.System.Logger.Level;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
@@ -13,13 +14,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
+import java.lang.System.Logger;
 
 import jnr.ffi.Struct;
 
+import static java.lang.System.getLogger;
+
+
 public final class Fuse {
 
-    private static final Logger LOGGER = Logger.getLogger(Fuse.class.getName());
+    private static final Logger logger = getLogger(Fuse.class.getName());
 
     private static final class MountThread extends Thread {
         private Integer result = null;
@@ -58,12 +62,10 @@ public final class Fuse {
     private static final ConcurrentMap<Path, FuseFilesystem> mountedFs = new ConcurrentHashMap<>();
 
     static void destroyed(FuseFilesystem fuseFilesystem) {
-        if (handleShutdownHooks()) {
-            try {
-                Runtime.getRuntime().removeShutdownHook(fuseFilesystem.getUnmountHook());
-            } catch (IllegalStateException e) {
-                // Already shutting down; this is fine and expected, ignore the exception.
-            }
+        try {
+            Runtime.getRuntime().removeShutdownHook(fuseFilesystem.getUnmountHook());
+        } catch (IllegalStateException e) {
+            // Already shutting down; this is fine and expected, ignore the exception.
         }
     }
 
@@ -82,19 +84,6 @@ public final class Fuse {
 
     static int getUid() {
         return currentUid;
-    }
-
-    private static boolean handleShutdownHooks() {
-        final SecurityManager security = System.getSecurityManager();
-        if (security == null) {
-            return true;
-        }
-        try {
-            security.checkPermission(new RuntimePermission("shutdownHooks"));
-            return true;
-        } catch (SecurityException e) {
-            return false;
-        }
     }
 
     static LibFuse init() throws UnsatisfiedLinkError {
@@ -127,15 +116,15 @@ public final class Fuse {
         if (!Files.isReadable(mountPoint) || !Files.isWritable(mountPoint) || !Files.isExecutable(mountPoint))
             throw new AccessDeniedException(mountPoint.toString());
 
-        final Logger logger = filesystem.getLogger();
+        Logger logger = filesystem.getLogger();
         if (logger != null)
             filesystem = new LoggedFuseFilesystem(filesystem, logger);
 
         filesystem.mount(mountPoint, blocking);
 
-        final String filesystemName = filesystem.getFuseName();
-        final String[] options = toOptionsArray(mountOptions);
-        final String[] argv;
+        String filesystemName = filesystem.getFuseName();
+        String[] options = toOptionsArray(mountOptions);
+        String[] argv;
         if (options == null)
             argv = new String[debug ? 4 : 3];
         else {
@@ -148,21 +137,20 @@ public final class Fuse {
         if (debug)
             argv[2] = "-d";
         argv[argv.length - 1] = mountPoint.toString();
-LOGGER.fine(Arrays.toString(argv));
+Fuse.logger.log(Level.DEBUG, Arrays.toString(argv));
 
-        final LibFuse fuse = init();
-        final StructFuseOperations operations = new StructFuseOperations(jnr.ffi.Runtime.getRuntime(fuse), filesystem);
+        LibFuse fuse = init();
+        StructFuseOperations operations = new StructFuseOperations(jnr.ffi.Runtime.getRuntime(fuse), filesystem);
 
-        if (handleShutdownHooks())
-            Runtime.getRuntime().addShutdownHook(filesystem.getUnmountHook());
+        Runtime.getRuntime().addShutdownHook(filesystem.getUnmountHook());
 
         mountedFs.put(mountPoint, filesystem);
 
-        final Integer result;
+        Integer result;
         if (blocking)
             result = fuse.fuse_main_real(argv.length, argv, operations, Struct.size(operations), null);
         else {
-            final MountThread mountThread = new MountThread(filesystemName, fuse, argv, mountPoint, operations);
+            Fuse.MountThread mountThread = new MountThread(filesystemName, fuse, argv, mountPoint, operations);
             mountThread.start();
             try {
                 mountThread.join(errorSleepDuration);
@@ -176,9 +164,9 @@ LOGGER.fine(Arrays.toString(argv));
 
     static void unmount(FuseFilesystem fuseFilesystem) throws IOException {
         fuseFilesystem.unmount();
-        final Path mountPoint = fuseFilesystem.getMountPoint();
+        Path mountPoint = fuseFilesystem.getMountPoint();
 
-        final FuseFilesystem fs = mountedFs.remove(mountPoint);
+        FuseFilesystem fs = mountedFs.remove(mountPoint);
         assert fs == null || fs == fuseFilesystem;
 
         unmount(mountPoint);
@@ -202,7 +190,7 @@ LOGGER.fine(Arrays.toString(argv));
      * @throws IOException thrown if an error occurs while starting the external process.
      */
     public static void unmount(Path mountPoint) throws IOException {
-        final FuseFilesystem fs = mountedFs.get(mountPoint);
+        FuseFilesystem fs = mountedFs.get(mountPoint);
         if (fs != null) {
             unmount(fs);
             return;
@@ -213,8 +201,8 @@ LOGGER.fine(Arrays.toString(argv));
         } catch (IOException e) {
             process = new ProcessGobbler(Fuse.umount, "-f", mountPoint.toString());
         }
-        final int res = process.getReturnCode();
-LOGGER.fine(process.toString());
+        int res = process.getReturnCode();
+logger.log(Level.DEBUG, process.toString());
         if (res != 0)
             throw new FuseException(res);
     }

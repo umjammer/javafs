@@ -56,12 +56,12 @@ public final class StructTimeBuffer {
         return layout.modtime.tv_sec.get(p);
     }
 
-    public final StructTimeBuffer mod_set(double time) {
+    public StructTimeBuffer mod_set(double time) {
         StructTimespec.set(layout.modtime, p, time);
         return this;
     }
 
-    public StructTimeBuffer mod_set(long sec, final long nsec) {
+    public StructTimeBuffer mod_set(long sec, long nsec) {
         StructTimespec.set(layout.modtime, p, sec, nsec);
         return this;
     }

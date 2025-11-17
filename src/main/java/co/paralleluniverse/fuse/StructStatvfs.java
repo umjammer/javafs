@@ -62,7 +62,7 @@ public class StructStatvfs {
                 }
 
             }
-            final boolean is32bit = (jnr.ffi.Platform.getNativePlatform().getCPU() == CPU.I386 || jnr.ffi.Platform.getNativePlatform().getCPU() == CPU.ARM);
+            boolean is32bit = (jnr.ffi.Platform.getNativePlatform().getCPU() == CPU.I386 || jnr.ffi.Platform.getNativePlatform().getCPU() == CPU.ARM);
             this.f_unused = is32bit ? new Signed32() : null;
             this.f_flag = new UnsignedLong();
             this.f_namemax = new UnsignedLong();

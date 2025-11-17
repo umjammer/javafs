@@ -250,8 +250,8 @@ public class StructStat {
     }
 
     public StructStat setAllTimesMillis(long millis) {
-        final long sec = millis / 1000L;
-        final long nsec = (millis % 1000L) * 1000000L;
+        long sec = millis / 1000L;
+        long nsec = (millis % 1000L) * 1000000L;
         return setAllTimes(sec, nsec);
     }
 

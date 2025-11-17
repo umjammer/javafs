@@ -17,7 +17,7 @@ final class DirectoryFillerImpl implements DirectoryFiller {
     private static final String parentDirectory = "..";
     private final Pointer buf;
     private final fuse_fill_dir_t nativeFunction;
-    private final Set<String> addedFiles = new HashSet<String>();
+    private final Set<String> addedFiles = new HashSet<>();
 
     DirectoryFillerImpl(Pointer buf, fuse_fill_dir_t nativeFunction) {
         this.buf = buf;
@@ -26,13 +26,13 @@ final class DirectoryFillerImpl implements DirectoryFiller {
         add(Arrays.asList(currentDirectory, parentDirectory));
     }
 
-    public static interface fuse_fill_dir_t {
+    public interface fuse_fill_dir_t {
         @Delegate
         int invoke(Pointer buf, ByteBuffer name, Pointer stat, @off_t long off);
     }
 
     @Override
-    public final boolean add(Iterable<String> files) {
+    public boolean add(Iterable<String> files) {
         int result;
         for (String file : files) {
             if (file == null)
@@ -51,9 +51,9 @@ final class DirectoryFillerImpl implements DirectoryFiller {
 
     @Override
     public String toString() {
-        final StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder();
         int count = 0;
-        for (final String file : addedFiles) {
+        for (String file : addedFiles) {
             output.append(file);
             if (count < addedFiles.size() - 1)
                 output.append(", ");

@@ -10,6 +10,7 @@ import co.paralleluniverse.filesystem.FileSystemAdapter;
  * @author pron
  */
 class ReadOnlyFileSystem extends FileSystemAdapter {
+
     public ReadOnlyFileSystem(FileSystem fs) {
         super(fs, new ReadOnlyFileSystemProvider(fs.provider()));
     }

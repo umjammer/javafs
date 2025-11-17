@@ -38,13 +38,13 @@ class Filesystem implements
 
     @Override
     public final int _readlink(String path, Pointer buffer, @size_t long size) {
-        final ByteBuffer buf = toByteBuffer(buffer, size);
-        final int result = fs.readlink(path, buf, size);
+        ByteBuffer buf = toByteBuffer(buffer, size);
+        int result = fs.readlink(path, buf, size);
         if (result == 0) {
             try {
                 buf.put((byte) 0);
-            } catch (final BufferOverflowException e) {
-                ((ByteBuffer) buf.position(buf.limit() - 1)).put((byte) 0);
+            } catch (BufferOverflowException e) {
+                buf.position(buf.limit() - 1).put((byte) 0);
             }
         }
         return result;
@@ -107,13 +107,13 @@ class Filesystem implements
 
     @Override
     public final int _read(String path, @Out Pointer buffer, @size_t long size, @off_t long offset, Pointer info) {
-        final ByteBuffer buf = toByteBuffer(buffer, size);
+        ByteBuffer buf = toByteBuffer(buffer, size);
         return fs.read(path, buf, size, offset, new StructFuseFileInfo(info, path));
     }
 
     @Override
     public final int _write(String path, @In Pointer buffer, @size_t long size, @off_t long offset, Pointer info) {
-        final ByteBuffer buf = toByteBuffer(buffer, size);
+        ByteBuffer buf = toByteBuffer(buffer, size);
         return fs.write(path, buf, size, offset, new StructFuseFileInfo(info, path));
     }
 
@@ -144,7 +144,7 @@ class Filesystem implements
 
     @Override
     public final int _setxattr(String path, String xattr, Pointer value, @size_t long size, int flags, int position) {
-        final ByteBuffer val = toByteBuffer(value, size);
+        ByteBuffer val = toByteBuffer(value, size);
         return fs.setxattr(path, xattr, val, size, flags, position);
     }
 
@@ -155,15 +155,15 @@ class Filesystem implements
 
     @Override
     public final int _getxattr(String path, String xattr, Pointer buffer, @size_t long size, @u_int32_t long position) {
-        final XattrFiller filler = new XattrFiller(buffer == null ? null : toByteBuffer(buffer, size), size, (int) position);
-        final int result = fs.getxattr(path, xattr, filler, size, position);
+        XattrFiller filler = new XattrFiller(buffer == null ? null : toByteBuffer(buffer, size), size, (int) position);
+        int result = fs.getxattr(path, xattr, filler, size, position);
         return result < 0 ? result : (int) filler.getSize();
     }
 
     @Override
     public final int _listxattr(String path, Pointer buffer, @size_t long size) {
-        final XattrListFiller filler = new XattrListFiller(buffer == null ? null : toByteBuffer(buffer, size), size);
-        final int result = fs.listxattr(path, filler);
+        XattrListFiller filler = new XattrListFiller(buffer == null ? null : toByteBuffer(buffer, size), size);
+        int result = fs.listxattr(path, filler);
         return result < 0 ? result : (int) filler.requiredSize();
     }
 
@@ -229,9 +229,9 @@ class Filesystem implements
 
     @Override
     public final int _lock(String path, Pointer info, int cmd, Pointer flock) {
-        final StructFuseFileInfo fileWrapper = new StructFuseFileInfo(info, path);
-        final StructFlock flockWrapper = new StructFlock(flock, path);
-        final int result = fs.lock(path, fileWrapper, cmd, flockWrapper);
+        StructFuseFileInfo fileWrapper = new StructFuseFileInfo(info, path);
+        StructFlock flockWrapper = new StructFlock(flock, path);
+        int result = fs.lock(path, fileWrapper, cmd, flockWrapper);
         return result;
     }
 

@@ -26,7 +26,7 @@ public class StructFusePollHandle {
         // TODO struct fuse_ll *f;
         public final Pointer f = new Pointer();
 
-        protected Layout(Runtime runtime) {
+        private Layout(Runtime runtime) {
             super(runtime);
         }
     }

@@ -66,7 +66,7 @@ class ReadOnlyFileSystemProvider extends FileSystemProviderAdapter {
         super.checkAccess(path, modes);
     }
 
-    private void checkOpenOptions(Set<? extends OpenOption> options) {
+    private static void checkOpenOptions(Set<? extends OpenOption> options) {
         if (options.contains(StandardOpenOption.CREATE)
                 || options.contains(StandardOpenOption.CREATE_NEW)
                 || options.contains(StandardOpenOption.APPEND)
