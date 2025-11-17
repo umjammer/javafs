@@ -50,14 +50,14 @@ public class JavaFsClosureHelper {
     @SuppressWarnings("unchecked")
     private JavaFsClosureHelper() {
         try {
-            final ClosureManager closureManager = Runtime.getSystemRuntime().getClosureManager();
+            ClosureManager closureManager = Runtime.getSystemRuntime().getClosureManager();
 
             // https://github.com/SerCeMan/jnr-fuse/commit/779e2de0d38121ecca7ffd7d974b9bcda19fd9c0
             Map<ClassLoader, AsmClassLoader> asmClassLoaders = (Map<ClassLoader, AsmClassLoader>) accessible(NativeClosureManager.class.getDeclaredField("asmClassLoaders")).get(closureManager);
-            final AsmClassLoader cl = asmClassLoaders.get(JavaFsClosureHelper.class.getClassLoader());
-            final CompositeTypeMapper ctm = (CompositeTypeMapper) accessible(NativeClosureManager.class.getDeclaredField("typeMapper")).get(closureManager);
+            AsmClassLoader cl = asmClassLoaders.get(JavaFsClosureHelper.class.getClassLoader());
+            CompositeTypeMapper ctm = (CompositeTypeMapper) accessible(NativeClosureManager.class.getDeclaredField("typeMapper")).get(closureManager);
             this.ctx = new SimpleNativeContext(Runtime.getSystemRuntime(), Collections.emptyList());
-            this.cache = new ClassValue<FromNativeConverter<?, Pointer>>() {
+            this.cache = new ClassValue<>() {
                 @Override
                 protected FromNativeConverter<?, Pointer> computeValue(Class<?> closureClass) {
                     return ClosureFromNativeConverter.

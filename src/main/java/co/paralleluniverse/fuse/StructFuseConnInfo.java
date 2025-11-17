@@ -27,7 +27,7 @@ class StructFuseConnInfo {
         this.p = p;
     }
 
-    public final void setOptions(final boolean setVolumeName, final boolean caseInsensitive) {
+    public final void setOptions(boolean setVolumeName, boolean caseInsensitive) {
         layout.want.set(p, (setVolumeName ? 0x2 : 0x0) | (caseInsensitive ? 0x1 : 0x0));
     }
 }

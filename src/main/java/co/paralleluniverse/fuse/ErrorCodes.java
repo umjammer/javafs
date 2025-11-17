@@ -1040,7 +1040,7 @@ final class ErrorCodes {
         }
     }
 
-    private static interface IErrorCodes {
+    private interface IErrorCodes {
         int E2BIG();
 
         int EACCES();

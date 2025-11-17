@@ -20,7 +20,7 @@ public final class XattrFiller {
         return value == null ? 0 : value.length;
     }
 
-    public final void set(byte[] value) {
+    public void set(byte[] value) {
         if (buffer != null && value != null) {
             if (isSet)
                 throw new IllegalStateException("Cannot set the xattr twice.");

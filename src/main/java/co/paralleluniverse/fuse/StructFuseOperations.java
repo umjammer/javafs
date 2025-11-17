@@ -87,7 +87,7 @@ class StructFuseOperations extends Struct {
     @SuppressWarnings("unused")
     public StructFuseOperations(jnr.ffi.Runtime runtime, FuseFilesystem fs) {
         super(runtime);
-        final Filesystem filesystem = new Filesystem(fs);
+        Filesystem filesystem = new Filesystem(fs);
         getattr.set(filesystem);
         readlink.set(filesystem);
         mknod.set(filesystem);

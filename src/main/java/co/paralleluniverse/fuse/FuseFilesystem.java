@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
+import java.lang.System.Logger;
 import java.util.regex.Pattern;
 import jnr.ffi.Pointer;
 import jnr.ffi.types.gid_t;
@@ -15,10 +15,11 @@ import jnr.ffi.types.uid_t;
  * Fuse file system.
  * All documentation from "fuse.h"
  *
- * @see http://fuse.sourceforge.net/doxygen/index.html
- * @see http://fuse.sourceforge.net/wiki/
+ * @see "https://fuse.sourceforge.net/doxygen/index.html"
+ * @see "https://fuse.sourceforge.net/wiki/"
  */
 public abstract class FuseFilesystem {
+
     private static final String defaultFilesystemName = "userfs-";
     private static final Pattern regexNormalizeFilesystemName = Pattern.compile("[^a-zA-Z]");
 
@@ -29,8 +30,8 @@ public abstract class FuseFilesystem {
      * @param mountedFilesystem The {@link FuseFilesystem} object that is actually mounted (the one receiving the destroy call)
      * @param userFilesystem    The {@link FuseFilesystem} that the user believes is mounted (the one that the user called .mount on)
      */
-    final static void _destroy(FuseFilesystem mountedFilesystem, FuseFilesystem userFilesystem) {
-        final Path oldMountPoint;
+    static void _destroy(FuseFilesystem mountedFilesystem, FuseFilesystem userFilesystem) {
+        Path oldMountPoint;
         mountedFilesystem.mountLock.lock();
         userFilesystem.mountLock.lock();
         try {
@@ -146,7 +147,7 @@ public abstract class FuseFilesystem {
     }
 
     public final FuseFilesystem log(boolean logging) {
-        return log(logging ? Logger.getLogger(getClass().getCanonicalName()) : null);
+        return log(logging ? System.getLogger(getClass().getName()) : null);
     }
 
     public final FuseFilesystem log(Logger logger) {
@@ -182,10 +183,10 @@ public abstract class FuseFilesystem {
 
     final class AutoUnmountHook extends Thread {
         @Override
-        public final void run() {
+        public void run() {
             try {
                 Fuse.unmount(FuseFilesystem.this);
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 // Can't do much here in a shutdown hook. Silently ignore.
             }
         }
@@ -748,7 +749,7 @@ public abstract class FuseFilesystem {
      * Note: if this method is not implemented, the kernel will still allow file locking to work locally.
      * Hence it is only interesting for network filesystems and similar.
      *
-     * @param op see {@link ru.serce.jnrfuse.struct.Flock}
+     * @param op see {@code ru.serce.jnrfuse.struct.Flock}
      */
     protected abstract int flock(String path, StructFuseFileInfo fi, int op);
 

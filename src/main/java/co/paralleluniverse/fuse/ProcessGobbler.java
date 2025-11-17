@@ -27,9 +27,9 @@ final class ProcessGobbler {
         }
 
         @Override
-        public final void run() {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            final StringBuilder contents = new StringBuilder();
+        public void run() {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            StringBuilder contents = new StringBuilder();
             String line;
             try {
                 while ((line = reader.readLine()) != null) {

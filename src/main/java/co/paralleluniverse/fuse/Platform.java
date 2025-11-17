@@ -10,7 +10,7 @@ import co.paralleluniverse.fuse.LibFuse.LibMacFuseProbe;
 import jnr.ffi.Platform.CPU;
 
 final class Platform {
-    public static enum PlatformEnum {
+    public enum PlatformEnum {
         LINUX_X86_64, LINUX_I686, LINUX_PPC, MAC, MAC_MACFUSE, FREEBSD, LINUX_ARM
     }
 
@@ -19,7 +19,7 @@ final class Platform {
     private static LibFuse libFuse = null;
     private static final Lock initLock = new ReentrantLock();
 
-    static final LibFuse fuse() {
+    static LibFuse fuse() {
         if (libFuse == null)
             init();
         return libFuse;
@@ -30,7 +30,7 @@ final class Platform {
             return;
         initLock.lock();
         try {
-            final jnr.ffi.Platform p = jnr.ffi.Platform.getNativePlatform();
+            jnr.ffi.Platform p = jnr.ffi.Platform.getNativePlatform();
             // Need to recheck
             if (libFuse == null) {
                 switch (p.getOS()) {
@@ -40,7 +40,7 @@ final class Platform {
                         break;
                     case DARWIN:
                         // First, need to load iconv
-                        final LibDl dl = LibraryLoader.create(LibDl.class).failImmediately().load("iconv");
+                        LibDl dl = LibraryLoader.create(LibDl.class).failImmediately().load("iconv");
                         dl.dlopen("iconv", LibDl.RTLD_LAZY | LibDl.RTLD_GLOBAL);
                         libFuse = null;
                         LibFuseProbe probe;
@@ -98,7 +98,7 @@ final class Platform {
         }
     }
 
-    public static final PlatformEnum platform() {
+    public static PlatformEnum platform() {
         if (platform == null)
             init();
 

@@ -9,18 +9,18 @@ public final class XattrListFiller {
     private final ByteBuffer buffer;
     private final long maxSize;
     private long currentSize = 0;
-    private final Set<String> addedXattrs = new HashSet<String>();
+    private final Set<String> addedXattrs = new HashSet<>();
 
     XattrListFiller(ByteBuffer buffer, long size) {
         this.buffer = buffer;
         maxSize = size;
     }
 
-    public final boolean add(Iterable<String> xattrs) {
+    public boolean add(Iterable<String> xattrs) {
         byte[] bytes;
         int size;
         boolean hasNullByte;
-        for (final String xattr : xattrs) {
+        for (String xattr : xattrs) {
             if (addedXattrs.contains(xattr))
                 continue;
 
@@ -44,19 +44,19 @@ public final class XattrListFiller {
         return true;
     }
 
-    public final boolean add(String... xattrs) {
+    public boolean add(String... xattrs) {
         return add(Arrays.asList(xattrs));
     }
 
-    public final long requiredSize() {
+    public long requiredSize() {
         return currentSize;
     }
 
     @Override
     public String toString() {
-        final StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder();
         int count = 0;
-        for (final String xattr : addedXattrs) {
+        for (String xattr : addedXattrs) {
             output.append(xattr);
             if (count < addedXattrs.size() - 1) {
                 output.append(", ");

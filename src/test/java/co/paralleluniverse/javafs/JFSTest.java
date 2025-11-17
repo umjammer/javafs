@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.google.common.jimfs.Jimfs;
+
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assert_;
@@ -33,7 +34,7 @@ public class JFSTest {
             os.writeUTF("JIMFS");
         }
 
-        final Path mnt = Files.createTempDirectory("jfsmnt");
+        Path mnt = Files.createTempDirectory("jfsmnt");
         try {
             JavaFS.mount(fs, mnt, false, false);
 
@@ -66,9 +67,6 @@ public class JFSTest {
             try (DataInputStream is = new DataInputStream(Files.newInputStream(new File(root, "c.txt").toPath()))) {
                 assertEquals("goodbye!", is.readUTF());
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw e;
         } finally {
             JavaFS.unmount(mnt);
             Files.delete(mnt);

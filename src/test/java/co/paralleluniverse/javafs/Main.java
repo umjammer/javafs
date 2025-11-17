@@ -3,13 +3,14 @@ package co.paralleluniverse.javafs;
 import com.google.common.jimfs.Jimfs;
 
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
 
-    public static void main(final String... args) throws Exception {
+    public static void main(String... args) throws Exception {
         try {
             if (args.length < 1 || args.length > 3)
                 throw new IllegalArgumentException();
@@ -20,8 +21,8 @@ public class Main {
                 readonly = true;
                 i++;
             }
-            final String mountPoint = args[i++];
-            final FileSystem fs = i >= args.length ? Jimfs.newFileSystem() : ZipFS.newZipFileSystem(Paths.get(args[i++]));
+            String mountPoint = args[i++];
+            FileSystem fs = i >= args.length ? Jimfs.newFileSystem() : FileSystems.newFileSystem(Paths.get(args[i++]));
 
             System.out.println("========================");
             System.out.println("Mounting filesystem " + fs + " at " + mountPoint + (readonly ? " READONLY" : ""));
