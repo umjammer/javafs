@@ -1,18 +1,33 @@
 [![Release](https://jitpack.io/v/umjammer/javafs.svg)](https://jitpack.io/#umjammer/javafs)
-[![Java CI with Maven](https://github.com/umjammer/javafs/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/javafs/actions)
+[![Java CI](https://github.com/umjammer/javafs/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/javafs/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/javafs/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/javafs/actions/workflows/codeql-analysis.yml)
-![Java](https://img.shields.io/badge/Java-8-b07219)
+![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
 
 # JavaFS
 
 Java filesystems as FUSE
 
-## Requirements
+### Requirements
 
-Java 8 and up.
+Java 17 and up.
 
 Your OS must support FUSE or have it installed.
+
+### Compatibility
+
+* OS X with [MacFUSE]/[fuse4x]/[OSXFUSE] on Intel architectures
+* Linux with [FUSE][Linux-Fuse] on Intel, PowerPC and ARM architectures
+* FreeBSD with [FUSE][FreeBSD-Fuse] on Intel architectures
+
+### Project Information
+
+This is essentially a port of [fuse-jna], by Etienne Perot, from [JNA] to [JNR],
+with some code copied from [jnr-fuse], by Sergey Tselovalnikov, made to work with the standard JDK [FileSystem] API.
+
+* Differences from [fuse-jna]: this project uses [JNR] rather than [JNA].
+* Differences from [jnr-fuse]: this project supports Java 7 (jnr-fuse supports only Java 8), and more platforms (like Mac).
+* Differences from both: rather than exposing a new, specific, Java FUSE API, this project uses the standard [FileSystem] API.
 
 ## Usage
 
@@ -21,26 +36,13 @@ The API consists of a single class with two methods:
  * `JavaFS.mount`, which mounts a Java `FileSystem` as FUSE filesystem, and
  * `JavaFS.unmount`, which unmounts a FUSE filesystem
 
-## Test
+### Test
 
 ```
 $ java -cp ... co.paralleluniverse.javafs.Main [-r] <mountpoint> [<zipfile>]
 ```
 
-### Compatibility
-
-* OS X with [MacFUSE]/[fuse4x]/[OSXFUSE] on Intel architectures
-* Linux with [FUSE][Linux-Fuse] on Intel, PowerPC and ARM architectures
-* FreeBSD with [FUSE][FreeBSD-Fuse] on Intel architectures
-
-## Project Information
-
-This is essentially a port of [fuse-jna], by Etienne Perot, from [JNA] to [JNR],
-with some code copied from [jnr-fuse], by Sergey Tselovalnikov, made to work with the standard JDK [FileSystem] API.
-
-* Differences from [fuse-jna]: this project uses [JNR] rather than [JNA].
-* Differences from [jnr-fuse]: this project supports Java 7 (jnr-fuse supports only Java 8), and more platforms (like Mac).
-* Differences from both: rather than exposing a new, specific, Java FUSE API, this project uses the standard [FileSystem] API.
+## References
 
 ## License
 
@@ -89,3 +91,7 @@ This is the 2-clause BSD license.
 [FreeBSD-FUSE]: http://wiki.freebsd.org/FuseFilesystem
 [BSD 2-Clause License]: http://www.opensource.org/licenses/bsd-license
 [MIT License]: http://opensource.org/licenses/MIT
+
+## TODO
+
+ * how to stop native logs?
