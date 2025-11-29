@@ -115,7 +115,7 @@ final class LoggedFuseFilesystem extends FuseFilesystem {
 
     @Override
     public void destroy() {
-        log("destroy", () -> filesystem.destroy());
+        log("destroy", filesystem::destroy);
     }
 
     @Override
@@ -150,12 +150,12 @@ final class LoggedFuseFilesystem extends FuseFilesystem {
 
     @Override
     protected String getName() {
-        return log("getName", null, () -> filesystem.getName());
+        return log("getName", null, filesystem::getName);
     }
 
     @Override
     protected String[] getOptions() {
-        return log("getOptions", null, () -> filesystem.getOptions());
+        return log("getOptions", null, filesystem::getOptions);
     }
 
     @Override
@@ -165,7 +165,7 @@ final class LoggedFuseFilesystem extends FuseFilesystem {
 
     @Override
     public void init() {
-        log("init", () -> filesystem.init());
+        log("init", filesystem::init);
     }
 
     @Override

@@ -315,8 +315,7 @@ logger.log(Level.DEBUG, "open: " + path);
 logger.log(Level.DEBUG, "read: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
             Channel channel = toChannel(info);
-            if (channel instanceof SeekableByteChannel) {
-                SeekableByteChannel ch = ((SeekableByteChannel) channel);
+            if (channel instanceof SeekableByteChannel ch) {
                 if (info.nonseekable())
                     assert offset == ch.position();
                 else
@@ -341,8 +340,7 @@ logger.log(Level.DEBUG, "read: " + n);
 logger.log(Level.INFO, "read: 0");
                     return 0; // we did not read any bytes
                 }
-            } else if (channel instanceof AsynchronousFileChannel) {
-                AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
+            } else if (channel instanceof AsynchronousFileChannel ch) {
                 int n = ch.read(buffer, offset).get();
                 assert n == size;
                 return n;
@@ -358,8 +356,7 @@ logger.log(Level.INFO, "read: 0");
 logger.log(Level.DEBUG, "write: " + path + ", " + offset + ", " + size + ", " + info.fh());
         try {
             Channel channel = toChannel(info);
-            if (channel instanceof SeekableByteChannel) {
-                SeekableByteChannel ch = ((SeekableByteChannel) channel);
+            if (channel instanceof SeekableByteChannel ch) {
                 if (!info.append() && !info.nonseekable()) {
 try { // TODO ad-hoc
                     ch.position(offset);
@@ -392,8 +389,7 @@ try { // TODO ad-hoc
                     }
                 }
                 return n;
-            } else if (channel instanceof AsynchronousFileChannel) {
-                AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
+            } else if (channel instanceof AsynchronousFileChannel ch) {
                 int n = ch.write(buffer, offset).get();
                 return n;
             } else
@@ -455,11 +451,9 @@ logger.log(Level.DEBUG, "release: " + path);
 logger.log(Level.DEBUG, "fsync: " + path);
         try {
             Channel channel = toChannel(info);
-            if (channel instanceof FileChannel) {
-                FileChannel ch = ((FileChannel) channel);
+            if (channel instanceof FileChannel ch) {
                 ch.force(datasync == 0);
-            } else if (channel instanceof AsynchronousFileChannel) {
-                AsynchronousFileChannel ch = ((AsynchronousFileChannel) channel);
+            } else if (channel instanceof AsynchronousFileChannel ch) {
                 ch.force(true);
                 ch.force(datasync == 0);
             } else
