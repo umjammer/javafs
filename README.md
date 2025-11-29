@@ -95,3 +95,4 @@ This is the 2-clause BSD license.
 ## TODO
 
  * how to stop native logs?
+ * on github actions `brew install osxfuse` doesn't work
